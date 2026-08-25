@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel de Gestão — Escritório Contábil</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Public+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* light (default) */
+  --bg:#f5f4ef; --bg2:#ffffff; --card:#ffffff; --card2:#f1efe8;
+  --border:#e2ded2; --text:#1c2321; --text2:#5b6460; --text3:#8b938d;
+  --accent:#0f6f5c; --accent2:#128268; --accent-ink:#ffffff;
+  --green:#1f8a5f; --yellow:#a3730a; --red:#c23b3b; --purple:#6a5acd;
+  --shadow:0 8px 24px rgba(30,35,30,.07);
+  --font-display:'Sora',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+  --font-body:'Public Sans',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#101615; --bg2:#161d1c; --card:#1a2220; --card2:#202b28;
+    --border:#2b3634; --text:#e8ece9; --text2:#a2ada7; --text3:#71807a;
+    --accent:#2fd6ac; --accent2:#5be3c4; --accent-ink:#08211b;
+    --green:#34c98f; --yellow:#e0b34d; --red:#f0817a; --purple:#b3a3f5;
+    --shadow:0 8px 24px rgba(0,0,0,.4);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#101615; --bg2:#161d1c; --card:#1a2220; --card2:#202b28;
+  --border:#2b3634; --text:#e8ece9; --text2:#a2ada7; --text3:#71807a;
+  --accent:#2fd6ac; --accent2:#5be3c4; --accent-ink:#08211b;
+  --green:#34c98f; --yellow:#e0b34d; --red:#f0817a; --purple:#b3a3f5;
+  --shadow:0 8px 24px rgba(0,0,0,.4);
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+body{
+  font-family:var(--font-body);
+  background:var(--bg); color:var(--text); min-height:100vh;
+  font-variant-numeric:tabular-nums;
+}
+h1,h2,h3,h4,.brand{ font-family:var(--font-display); text-wrap:balance; }
+.app{display:flex; min-height:100vh;}
+.sidebar{
+  width:230px; background:var(--bg2); border-right:1px solid var(--border);
+  padding:20px 14px; display:flex; flex-direction:column; gap:4px; flex-shrink:0;
+}
+.brand{padding:6px 10px 20px; font-weight:700; font-size:17px; letter-spacing:-.3px;}
+.brand span{color:var(--accent);}
+.nav-item{
+  display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:10px;
+  cursor:pointer; color:var(--text2); font-size:14px; font-weight:500; transition:.15s;
+}
+.nav-item:hover{background:var(--card2); color:var(--text);}
+.nav-item.active{background:var(--accent); color:var(--accent-ink);}
+.nav-icon{width:18px; text-align:center; font-size:15px;}
+.main{flex:1; padding:26px 32px; overflow-x:hidden; max-width:100%;}
+.topbar{display:flex; justify-content:space-between; align-items:center; margin-bottom:22px; flex-wrap:wrap; gap:12px;}
+.topbar h1{font-size:22px; font-weight:700; letter-spacing:-.3px;}
+.topbar .sub{color:var(--text3); font-size:13px; margin-top:2px;}
+.actions{display:flex; gap:8px; flex-wrap:wrap;}
+button, .btn{
+  font-family:inherit; border:1px solid var(--border); background:var(--card);
+  color:var(--text); padding:8px 14px; border-radius:9px; font-size:13px; font-weight:600;
+  cursor:pointer; transition:.15s; display:inline-flex; align-items:center; gap:6px;
+}
+button:hover{border-color:var(--accent); color:var(--accent);}
+.btn-primary{background:var(--accent); color:var(--accent-ink); border-color:var(--accent);}
+.btn-primary:hover{background:var(--accent2); color:var(--accent-ink); border-color:var(--accent2);}
+.btn-danger:hover{border-color:var(--red); color:var(--red);}
+.btn-sm{padding:5px 10px; font-size:12px;}
+.grid-cards{display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:14px; margin-bottom:24px;}
+.stat-card{
+  background:var(--card); border:1px solid var(--border); border-radius:14px; padding:18px;
+  box-shadow:var(--shadow);
+}
+.stat-card .label{color:var(--text3); font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:.4px;}
+.stat-card .value{font-size:28px; font-weight:700; margin-top:6px;}
+.stat-card .delta{font-size:12px; margin-top:4px; color:var(--text2);}
+.dot{width:8px;height:8px;border-radius:50%; display:inline-block; margin-right:6px;}
+.section{background:var(--card); border:1px solid var(--border); border-radius:14px; padding:20px; margin-bottom:20px; box-shadow:var(--shadow);}
+.section h2{font-size:15px; font-weight:700; margin-bottom:14px; display:flex; justify-content:space-between; align-items:center;}
+.section h2 .count{color:var(--text3); font-weight:500; font-size:12px;}
+table{width:100%; border-collapse:collapse; font-size:13px;}
+th{text-align:left; color:var(--text3); font-weight:600; padding:8px 10px; border-bottom:1px solid var(--border); font-size:11px; text-transform:uppercase; letter-spacing:.3px; white-space:nowrap;}
+td{padding:9px 10px; border-bottom:1px solid var(--border); vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:var(--card2);}
+.badge{padding:3px 9px; border-radius:20px; font-size:11px; font-weight:700; display:inline-flex; align-items:center; gap:5px; white-space:nowrap;}
+.badge.green{background:rgba(62,207,142,.15); color:var(--green);}
+.badge.yellow{background:rgba(240,180,41,.15); color:var(--yellow);}
+.badge.red{background:rgba(240,85,90,.15); color:var(--red);}
+.badge.gray{background:var(--card2); color:var(--text3);}
+.badge.purple{background:rgba(167,139,250,.15); color:var(--purple);}
+.empty{color:var(--text3); font-size:13px; padding:30px 10px; text-align:center;}
+.toolbar{display:flex; gap:10px; margin-bottom:16px; flex-wrap:wrap; align-items:center;}
+input, select, textarea{
+  font-family:inherit; background:var(--bg2); border:1px solid var(--border); color:var(--text);
+  padding:8px 11px; border-radius:9px; font-size:13px; outline:none;
+}
+input:focus, select:focus, textarea:focus{border-color:var(--accent);}
+.search{flex:1; min-width:180px;}
+.modal-overlay{
+  position:fixed; inset:0; background:rgba(0,0,0,.5); display:none; align-items:center;
+  justify-content:center; z-index:100; padding:20px;
+}
+.modal-overlay.open{display:flex;}
+.modal{
+  background:var(--bg2); border:1px solid var(--border); border-radius:16px; padding:24px;
+  width:100%; max-width:460px; max-height:90vh; overflow-y:auto; box-shadow:var(--shadow);
+}
+.modal h3{font-size:16px; margin-bottom:16px;}
+.field{margin-bottom:12px;}
+.field label{display:block; font-size:12px; font-weight:600; color:var(--text2); margin-bottom:5px;}
+.field input, .field select, .field textarea{width:100%;}
+.modal-actions{display:flex; justify-content:flex-end; gap:8px; margin-top:18px;}
+.row-actions{display:flex; gap:6px; justify-content:flex-end;}
+.icon-btn{padding:5px 8px; font-size:12px;}
+.tabs-inline{display:flex; gap:6px; margin-bottom:16px; flex-wrap:wrap;}
+.tab-pill{padding:6px 13px; border-radius:20px; font-size:12px; font-weight:600; border:1px solid var(--border); cursor:pointer; color:var(--text2);}
+.tab-pill.active{background:var(--accent); color:var(--accent-ink); border-color:var(--accent);}
+.footer-note{color:var(--text3); font-size:11px; text-align:center; margin-top:20px;}
+.briefing{display:flex; gap:14px; align-items:flex-start; position:relative; background:linear-gradient(135deg, var(--card), var(--card2)); border-color:var(--accent);}
+.briefing-avatar{width:38px; height:38px; border-radius:50%; background:var(--accent); color:var(--accent-ink); display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0;}
+.briefing-greeting{font-family:var(--font-display); font-weight:700; font-size:15px; margin-bottom:4px;}
+.briefing-text{font-size:13px; color:var(--text2); line-height:1.6;}
+.briefing-close{position:absolute; top:14px; right:14px; border:none; background:transparent; color:var(--text3); padding:2px 6px; font-size:13px;}
+.briefing-close:hover{color:var(--text); border:none;}
+.kanban{display:grid; grid-template-columns:repeat(3,1fr); gap:14px;}
+.kanban-col{background:var(--card2); border-radius:12px; padding:12px; min-height:200px;}
+.kanban-col h4{font-size:12px; text-transform:uppercase; color:var(--text3); margin-bottom:10px; letter-spacing:.4px;}
+.kanban-card{background:var(--card); border:1px solid var(--border); border-radius:10px; padding:10px; margin-bottom:8px; font-size:13px; cursor:pointer;}
+.kanban-card:hover{border-color:var(--accent);}
+.kanban-card .meta{font-size:11px; color:var(--text3); margin-top:5px;}
+#authScreen{min-height:100vh; display:flex; align-items:center; justify-content:center; background:var(--bg);}
+.auth-box{background:var(--card); border:1px solid var(--border); border-radius:16px; padding:32px; width:100%; max-width:360px; box-shadow:var(--shadow);}
+.auth-box h1{font-size:20px; margin-bottom:4px;}
+.auth-box .sub{color:var(--text3); font-size:13px; margin-bottom:20px;}
+.auth-box .field{margin-bottom:14px;}
+.auth-error{color:var(--red); font-size:12px; margin-top:6px; min-height:16px;}
+.auth-switch{text-align:center; font-size:12px; color:var(--text3); margin-top:14px; cursor:pointer;}
+.auth-switch span{color:var(--accent); font-weight:600;}
+.hidden{display:none !important;}
+::-webkit-scrollbar{width:8px; height:8px;}
+::-webkit-scrollbar-thumb{background:var(--border); border-radius:4px;}
+@media(max-width:820px){
+  .app{flex-direction:column;}
+  .sidebar{width:100%; flex-direction:row; overflow-x:auto; padding:10px;}
+  .nav-item{flex-shrink:0;}
+  .main{padding:18px;}
+  .kanban{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<div id="authScreen">
+  <div class="auth-box">
+    <h1>📊 Painel<span style="color:var(--accent)">Contábil</span></h1>
+    <div class="sub" id="authSub">Entre com sua conta da equipe</div>
+    <div class="field"><label>E-mail</label><input id="authEmail" type="email" placeholder="voce@escritorio.com"></div>
+    <div class="field"><label>Senha</label><input id="authPass" type="password" placeholder="••••••••"></div>
+    <div class="field hidden" id="authNomeField"><label>Seu nome</label><input id="authNome" type="text" placeholder="Nome completo"></div>
+    <button class="btn-primary" id="authSubmit" style="width:100%; justify-content:center;">Entrar</button>
+    <div class="auth-error" id="authError"></div>
+    <div class="auth-switch" id="authSwitch">Novo por aqui? <span>Criar conta da equipe</span></div>
+  </div>
+</div>
+
+<div class="app hidden" id="appRoot">
+  <div class="sidebar">
+    <div class="brand">📊 Painel<span>Contábil</span></div>
+    <div class="nav-item active" data-view="dashboard"><span class="nav-icon">🏠</span> Visão Geral</div>
+    <div class="nav-item" data-view="empresas"><span class="nav-icon">🏢</span> Empresas</div>
+    <div class="nav-item" data-view="documentos"><span class="nav-icon">📁</span> Documentos</div>
+    <div class="nav-item" data-view="obrigacoes"><span class="nav-icon">📋</span> Obrigações</div>
+    <div class="nav-item" data-view="financeiro"><span class="nav-icon">💰</span> Financeiro</div>
+    <div class="nav-item" data-view="licencas"><span class="nav-icon">🪪</span> Licenças</div>
+    <div class="nav-item" data-view="tarefas"><span class="nav-icon">✅</span> Tarefas</div>
+    <div class="nav-item" data-view="agenda"><span class="nav-icon">📅</span> Agenda</div>
+    <div style="flex:1"></div>
+    <div class="nav-item" id="logoutBtn"><span class="nav-icon">🚪</span> Sair</div>
+  </div>
+  <div class="main" id="main"></div>
+</div>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="modalBody"></div>
+</div>
+
+<script>
+/* ================= CONFIG ================= */
+const SUPABASE_URL = "https://lhomobamwjqgamwwrgip.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_LuCYlINCYqNbgZ66OcuKiQ_pR04fYnW";
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+
+/* ================= STATE ================= */
+let STATE = { empresas:[], documentos:[], obrigacoes:[], entregas:[], mensalidades:[], despesas:[], licencas:[], tarefas:[], profiles:[], reunioes:[] };
+let briefingDismissed = false;
+let currentView = "dashboard";
+let session = null;
+
+/* ================= HELPERS ================= */
+function fmtDate(d){ if(!d) return "—"; const dt = new Date(d+"T00:00:00"); return dt.toLocaleDateString("pt-BR"); }
+function fmtMoney(v){ return (Number(v)||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"}); }
+function daysUntil(d){ if(!d) return null; const today=new Date(); today.setHours(0,0,0,0); const dt=new Date(d+"T00:00:00"); return Math.round((dt-today)/86400000); }
+function escapeHtml(s){ return (s==null?"":s).toString().replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+function uid(){ return crypto.randomUUID(); }
+function empresaNome(id){ const e = STATE.empresas.find(e=>e.id===id); return e? e.nome : "—"; }
+function empresaOptions(selected){ return `<option value="">— selecione —</option>` + STATE.empresas.map(e=>`<option value="${e.id}" ${e.id===selected?'selected':''}>${escapeHtml(e.nome)}</option>`).join(""); }
+function profileOptions(selected){ return `<option value="">— ninguém —</option>` + STATE.profiles.map(p=>`<option value="${p.id}" ${p.id===selected?'selected':''}>${escapeHtml(p.nome||p.email)}</option>`).join(""); }
+
+function dueBadge(dateStr, status){
+  if(status === "pago" || status === "entregue") return `<span class="badge green">✔ ${status==='pago'?'Pago':'Entregue'}</span>`;
+  const diff = daysUntil(dateStr);
+  if(diff === null) return `<span class="badge gray">—</span>`;
+  if(diff < 0) return `<span class="badge red">⚠ Atrasado (${Math.abs(diff)}d)</span>`;
+  if(diff <= 5) return `<span class="badge yellow">⏳ ${diff===0?'Hoje':diff+'d restantes'}</span>`;
+  return `<span class="badge gray">${diff}d restantes</span>`;
+}
+
+function toast(msg, isError){
+  let t = document.getElementById("toastEl");
+  if(!t){ t = document.createElement("div"); t.id="toastEl"; t.style.cssText="position:fixed;bottom:20px;right:20px;z-index:200;padding:12px 18px;border-radius:10px;font-size:13px;font-weight:600;box-shadow:var(--shadow);"; document.body.appendChild(t); }
+  t.textContent = msg;
+  t.style.background = isError? "var(--red)" : "var(--green)";
+  t.style.color = "#fff";
+  t.style.display = "block";
+  clearTimeout(t._timer);
+  t._timer = setTimeout(()=>{ t.style.display="none"; }, 3000);
+}
+
+/* ================= MODAL ================= */
+function openModal(html){ document.getElementById("modalBody").innerHTML = html; document.getElementById("modalOverlay").classList.add("open"); }
+function closeModal(){ document.getElementById("modalOverlay").classList.remove("open"); }
+function confirmDialog(msg){
+  return new Promise(resolve=>{
+    openModal(`<h3>Confirmar ação</h3><p style="color:var(--text2); font-size:13px; line-height:1.5;">${escapeHtml(msg)}</p>
+      <div class="modal-actions"><button id="confirmNo">Cancelar</button><button class="btn-primary" id="confirmYes">Confirmar</button></div>`);
+    document.getElementById("confirmNo").onclick = ()=>{ closeModal(); resolve(false); };
+    document.getElementById("confirmYes").onclick = ()=>{ closeModal(); resolve(true); };
+  });
+}
+document.getElementById("modalOverlay").addEventListener("click", e=>{ if(e.target.id==="modalOverlay") closeModal(); });
+
+/* ================= AUTH ================= */
+let authMode = "login";
+document.getElementById("authSwitch").addEventListener("click", ()=>{
+  authMode = authMode === "login" ? "signup" : "login";
+  document.getElementById("authNomeField").classList.toggle("hidden", authMode==="login");
+  document.getElementById("authSub").textContent = authMode==="login" ? "Entre com sua conta da equipe" : "Crie sua conta para acessar o painel";
+  document.getElementById("authSubmit").textContent = authMode==="login" ? "Entrar" : "Criar conta";
+  document.getElementById("authSwitch").innerHTML = authMode==="login" ? 'Novo por aqui? <span>Criar conta da equipe</span>' : 'Já tem conta? <span>Entrar</span>';
+  document.getElementById("authError").textContent = "";
+});
+document.getElementById("authSubmit").addEventListener("click", async ()=>{
+  const email = document.getElementById("authEmail").value.trim();
+  const pass = document.getElementById("authPass").value;
+  const nome = document.getElementById("authNome").value.trim();
+  const errEl = document.getElementById("authError");
+  errEl.textContent = "";
+  if(!email || !pass){ errEl.textContent = "Preencha e-mail e senha."; return; }
+  if(authMode === "signup"){
+    const { error } = await sb.auth.signUp({ email, password: pass, options:{ data:{ nome: nome || email } } });
+    if(error){ errEl.textContent = error.message; return; }
+    toast("Conta criada! Verifique seu e-mail se a confirmação estiver ativa.");
+  } else {
+    const { error } = await sb.auth.signInWithPassword({ email, password: pass });
+    if(error){ errEl.textContent = error.message; return; }
+  }
+});
+document.getElementById("logoutBtn").addEventListener("click", async ()=>{ await sb.auth.signOut(); });
+
+sb.auth.onAuthStateChange((event, sess)=>{
+  session = sess;
+  if(sess){
+    document.getElementById("authScreen").classList.add("hidden");
+    document.getElementById("appRoot").classList.remove("hidden");
+    bootstrap();
+  } else {
+    document.getElementById("authScreen").classList.remove("hidden");
+    document.getElementById("appRoot").classList.add("hidden");
+  }
+});
+
+/* ================= NAV ================= */
+document.querySelectorAll(".nav-item[data-view]").forEach(el=>{
+  el.addEventListener("click", ()=>{
+    document.querySelectorAll(".nav-item[data-view]").forEach(n=>n.classList.remove("active"));
+    el.classList.add("active");
+    currentView = el.dataset.view;
+    render();
+  });
+});
+
+/* ================= DATA LOADING ================= */
+async function loadAll(){
+  const [empresas, documentos, obrigacoes, entregas, mensalidades, despesas, licencas, tarefas, profiles, reunioes] = await Promise.all([
+    sb.from("empresas").select("*").order("nome"),
+    sb.from("documentos").select("*").order("created_at",{ascending:false}),
+    sb.from("obrigacoes").select("*").order("nome"),
+    sb.from("obrigacoes_entregas").select("*").order("vencimento"),
+    sb.from("mensalidades").select("*").order("vencimento"),
+    sb.from("despesas").select("*").order("vencimento"),
+    sb.from("licencas").select("*").order("vencimento"),
+    sb.from("tarefas").select("*").order("created_at",{ascending:false}),
+    sb.from("profiles").select("*").order("nome"),
+    sb.from("reunioes").select("*").order("data_hora"),
+  ]);
+  STATE.empresas = empresas.data || [];
+  STATE.documentos = documentos.data || [];
+  STATE.obrigacoes = obrigacoes.data || [];
+  STATE.entregas = entregas.data || [];
+  STATE.mensalidades = mensalidades.data || [];
+  STATE.despesas = despesas.data || [];
+  STATE.licencas = licencas.data || [];
+  STATE.tarefas = tarefas.data || [];
+  STATE.profiles = profiles.data || [];
+  STATE.reunioes = reunioes.data || [];
+}
+
+async function bootstrap(){
+  await loadAll();
+  render();
+}
+
+/* ================= RENDER ROOT ================= */
+function topbar(title, sub, actionsHtml){
+  return `<div class="topbar"><div><h1>${title}</h1><div class="sub">${sub}</div></div><div class="actions">${actionsHtml||""}</div></div>`;
+}
+function render(){
+  const main = document.getElementById("main");
+  if(currentView==="dashboard") main.innerHTML = viewDashboard();
+  else if(currentView==="empresas") main.innerHTML = viewEmpresas();
+  else if(currentView==="documentos") main.innerHTML = viewDocumentos();
+  else if(currentView==="obrigacoes") main.innerHTML = viewObrigacoes();
+  else if(currentView==="financeiro") main.innerHTML = viewFinanceiro();
+  else if(currentView==="licencas") main.innerHTML = viewLicencas();
+  else if(currentView==="tarefas") main.innerHTML = viewTarefas();
+  else if(currentView==="agenda") main.innerHTML = viewAgenda();
+  bindViewActions();
+}
+
+/* ================= DASHBOARD ================= */
+function viewDashboard(){
+  const entregasPend = STATE.entregas.filter(e=>e.status!=="entregue");
+  const entregasAtrasadas = entregasPend.filter(e=>daysUntil(e.vencimento)<0);
+  const mensAberto = STATE.mensalidades.filter(m=>m.status!=="pago");
+  const mensAtrasadas = mensAberto.filter(m=>daysUntil(m.vencimento)<0);
+  const totalReceber = mensAberto.reduce((s,m)=>s+Number(m.valor||0),0);
+  const licProx = STATE.licencas.filter(l=>{ const d=daysUntil(l.vencimento); return d!==null && d<=30; });
+  const tarefasAbertas = STATE.tarefas.filter(t=>t.status!=="concluida");
+
+  const eventos = [
+    ...entregasPend.map(e=>({data:e.vencimento, texto:`Obrigação: ${obrigacaoNome(e.obrigacao_id)} (${e.competencia})`, tipo:"Fiscal"})),
+    ...mensAberto.map(m=>({data:m.vencimento, texto:`Mensalidade ${empresaNome(m.empresa_id)} (${m.competencia})`, tipo:"Financeiro"})),
+    ...STATE.licencas.map(l=>({data:l.vencimento, texto:`Licença ${l.tipo} — ${empresaNome(l.empresa_id)}`, tipo:"Licença"})),
+    ...STATE.despesas.filter(d=>d.status!=="pago").map(d=>({data:d.vencimento, texto:`Despesa: ${d.descricao}`, tipo:"Despesa"})),
+    ...STATE.reunioes.filter(r=>r.status!=="cancelada").map(r=>({data:r.data_hora.slice(0,10), texto:`Reunião: ${r.titulo}${r.empresa_id? " — "+empresaNome(r.empresa_id):""}`, tipo:"Reunião"})),
+  ].filter(e=>e.data).sort((a,b)=>a.data.localeCompare(b.data)).slice(0,10);
+
+  return `
+  ${topbar("Visão Geral", "Resumo do escritório — "+new Date().toLocaleDateString("pt-BR",{weekday:'long',day:'2-digit',month:'long',year:'numeric'}))}
+  ${renderBriefing()}
+  <div class="grid-cards">
+    <div class="stat-card"><div class="label">Empresas Ativas</div><div class="value">${STATE.empresas.filter(e=>e.ativo).length}</div><div class="delta">${STATE.empresas.length} cadastradas</div></div>
+    <div class="stat-card"><div class="label">Obrigações Pendentes</div><div class="value">${entregasPend.length}</div><div class="delta"><span class="dot" style="background:var(--red)"></span>${entregasAtrasadas.length} atrasadas</div></div>
+    <div class="stat-card"><div class="label">A Receber (aberto)</div><div class="value">${fmtMoney(totalReceber)}</div><div class="delta"><span class="dot" style="background:var(--red)"></span>${mensAtrasadas.length} vencidas</div></div>
+    <div class="stat-card"><div class="label">Licenças a Vencer (30d)</div><div class="value">${licProx.length}</div><div class="delta">Fique de olho</div></div>
+    <div class="stat-card"><div class="label">Tarefas Abertas</div><div class="value">${tarefasAbertas.length}</div><div class="delta">de ${STATE.tarefas.length} no total</div></div>
+  </div>
+  <div class="section">
+    <h2>Próximos Vencimentos <span class="count">${eventos.length}</span></h2>
+    ${eventos.length? `<table><thead><tr><th>Data</th><th>Descrição</th><th>Tipo</th><th>Status</th></tr></thead><tbody>
+      ${eventos.map(e=>`<tr><td>${fmtDate(e.data)}</td><td>${escapeHtml(e.texto)}</td><td><span class="badge purple">${e.tipo}</span></td><td>${dueBadge(e.data)}</td></tr>`).join("")}
+    </tbody></table>` : `<div class="empty">Nada por enquanto. Cadastre empresas e obrigações para começar.</div>`}
+  </div>`;
+}
+function obrigacaoNome(id){ const o = STATE.obrigacoes.find(o=>o.id===id); return o? o.nome : "—"; }
+
+/* ================= ASSISTENTE (resumo ao abrir) ================= */
+function renderBriefing(){
+  if(briefingDismissed) return "";
+  const hour = new Date().getHours();
+  const saudacao = hour<12? "Bom dia" : hour<18? "Boa tarde" : "Boa noite";
+  const me = STATE.profiles.find(p=>p.id===(session && session.user && session.user.id));
+  const nome = me && me.nome ? me.nome.split(" ")[0] : "";
+  const hojeStr = new Date().toISOString().slice(0,10);
+
+  const reunioesHoje = STATE.reunioes.filter(r=>r.status!=="cancelada" && r.data_hora.slice(0,10)===hojeStr).sort((a,b)=>a.data_hora.localeCompare(b.data_hora));
+  const entregasAtrasadas = STATE.entregas.filter(e=>e.status!=="entregue" && daysUntil(e.vencimento)<0);
+  const entregasProx = STATE.entregas.filter(e=>e.status!=="entregue" && daysUntil(e.vencimento)>=0 && daysUntil(e.vencimento)<=7);
+  const mensAtrasadas = STATE.mensalidades.filter(m=>m.status!=="pago" && daysUntil(m.vencimento)<0);
+  const valorAtrasado = mensAtrasadas.reduce((s,m)=>s+Number(m.valor||0),0);
+  const licProx = STATE.licencas.filter(l=>{ const d=daysUntil(l.vencimento); return d!==null && d>=0 && d<=30; });
+  const tarefasHoje = STATE.tarefas.filter(t=>t.status!=="concluida" && t.prazo===hojeStr);
+
+  const frases = [];
+  if(reunioesHoje.length){
+    frases.push(`Você tem ${reunioesHoje.length} reunião${reunioesHoje.length>1?'ões':''} hoje: ${reunioesHoje.map(r=>`${escapeHtml(r.titulo)} às ${new Date(r.data_hora).toLocaleTimeString("pt-BR",{hour:'2-digit',minute:'2-digit'})}`).join(", ")}.`);
+  }
+  if(entregasAtrasadas.length || mensAtrasadas.length){
+    const partes = [];
+    if(entregasAtrasadas.length) partes.push(`${entregasAtrasadas.length} obrigação${entregasAtrasadas.length>1?'ões':''} acessória${entregasAtrasadas.length>1?'s':''} atrasada${entregasAtrasadas.length>1?'s':''}`);
+    if(mensAtrasadas.length) partes.push(`${fmtMoney(valorAtrasado)} em mensalidades vencidas`);
+    frases.push(`⚠ Atenção: ${partes.join(" e ")}.`);
+  }
+  if(tarefasHoje.length) frases.push(`Você tem ${tarefasHoje.length} tarefa${tarefasHoje.length>1?'s':''} com prazo para hoje.`);
+  if(entregasProx.length) frases.push(`Nos próximos 7 dias vencem ${entregasProx.length} obrigaç${entregasProx.length>1?'ões':'ão'}.`);
+  if(licProx.length) frases.push(`${licProx.length} licença${licProx.length>1?'s':''} vence${licProx.length>1?'m':''} nos próximos 30 dias.`);
+
+  const corpo = frases.length? frases.join(" ") : "Tudo tranquilo por aqui — nada atrasado ou urgente para hoje. 🎉";
+
+  return `<div class="section briefing">
+    <button class="briefing-close" id="briefingClose" title="Fechar">✕</button>
+    <div class="briefing-avatar">🤖</div>
+    <div>
+      <div class="briefing-greeting">${saudacao}${nome? ", "+escapeHtml(nome):""}!</div>
+      <div class="briefing-text">${corpo}</div>
+    </div>
+  </div>`;
+}
+
+/* ================= EMPRESAS ================= */
+function viewEmpresas(){
+  const rows = STATE.empresas;
+  return `
+  ${topbar("Empresas", `${rows.length} cadastradas`, `
+    <button class="btn-primary btn-sm" id="btnNovaEmpresa">+ Nova empresa</button>`)}
+  <div class="section">
+    <table><thead><tr><th>Nome</th><th>CNPJ</th><th>Regime</th><th>Responsável</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+      ${rows.map(e=>`<tr>
+        <td>${escapeHtml(e.nome)}</td>
+        <td>${escapeHtml(e.cnpj||"—")}</td>
+        <td><span class="badge purple">${escapeHtml(e.regime||"—")}</span></td>
+        <td>${escapeHtml(e.responsavel||"—")}</td>
+        <td>${e.ativo? '<span class="badge green">Ativa</span>' : '<span class="badge gray">Inativa</span>'}</td>
+        <td class="row-actions">
+          <button class="icon-btn" data-edit-empresa="${e.id}">✎</button>
+          <button class="icon-btn btn-danger" data-del-empresa="${e.id}">🗑</button>
+        </td>
+      </tr>`).join("") || `<tr><td colspan="6"><div class="empty">Nenhuma empresa cadastrada ainda.</div></td></tr>`}
+    </tbody></table>
+  </div>`;
+}
+function empresaForm(e){
+  e = e || {};
+  return `<h3>${e.id? "Editar empresa":"Nova empresa"}</h3>
+  <div class="field"><label>Nome</label><input id="fNome" value="${escapeHtml(e.nome||"")}"></div>
+  <div class="field"><label>CNPJ</label><input id="fCnpj" value="${escapeHtml(e.cnpj||"")}"></div>
+  <div class="field"><label>Regime Tributário</label>
+    <select id="fRegime">
+      ${["MEI","Simples Nacional","Lucro Presumido","Lucro Real"].map(r=>`<option ${e.regime===r?'selected':''}>${r}</option>`).join("")}
+    </select>
+  </div>
+  <div class="field"><label>Responsável</label><input id="fResp" value="${escapeHtml(e.responsavel||"")}"></div>
+  <div class="field"><label>Telefone</label><input id="fTel" value="${escapeHtml(e.telefone||"")}"></div>
+  <div class="field"><label>E-mail</label><input id="fEmail" value="${escapeHtml(e.email||"")}"></div>
+  <div class="field"><label>Endereço</label><input id="fEnd" value="${escapeHtml(e.endereco||"")}"></div>
+  <div class="field"><label>Observações</label><textarea id="fObs" rows="2">${escapeHtml(e.observacoes||"")}</textarea></div>
+  <div class="field"><label><input type="checkbox" id="fAtivo" ${e.ativo!==false?'checked':''} style="width:auto"> Empresa ativa</label></div>
+  <div class="modal-actions"><button id="cancelModal">Cancelar</button><button class="btn-primary" id="saveEmpresa">Salvar</button></div>`;
+}
+
+/* ================= DOCUMENTOS ================= */
+let docEmpresaFiltro = "";
+function viewDocumentos(){
+  const docs = STATE.documentos.filter(d=> !docEmpresaFiltro || d.empresa_id===docEmpresaFiltro);
+  return `
+  ${topbar("Documentos", "Contratos sociais, certidões e demais arquivos por empresa", `<button class="btn-primary btn-sm" id="btnNovoDoc">+ Enviar documento</button>`)}
+  <div class="toolbar">
+    <select id="filtroEmpresaDoc" style="min-width:240px">
+      <option value="">Todas as empresas</option>
+      ${STATE.empresas.map(e=>`<option value="${e.id}" ${e.id===docEmpresaFiltro?'selected':''}>${escapeHtml(e.nome)}</option>`).join("")}
+    </select>
+  </div>
+  <div class="section">
+    <table><thead><tr><th>Empresa</th><th>Tipo</th><th>Arquivo</th><th>Validade</th><th></th></tr></thead>
+    <tbody>
+      ${docs.map(d=>`<tr>
+        <td>${escapeHtml(empresaNome(d.empresa_id))}</td>
+        <td><span class="badge purple">${escapeHtml(d.tipo)}</span></td>
+        <td>${escapeHtml(d.nome_arquivo)}</td>
+        <td>${d.data_validade? dueBadge(d.data_validade) : "—"}</td>
+        <td class="row-actions">
+          <button class="icon-btn" data-download-doc="${d.id}">⬇</button>
+          <button class="icon-btn btn-danger" data-del-doc="${d.id}">🗑</button>
+        </td>
+      </tr>`).join("") || `<tr><td colspan="5"><div class="empty">Nenhum documento enviado ainda.</div></td></tr>`}
+    </tbody></table>
+  </div>`;
+}
+function docForm(){
+  return `<h3>Enviar documento</h3>
+  <div class="field"><label>Empresa</label><select id="fDocEmpresa">${empresaOptions()}</select></div>
+  <div class="field"><label>Tipo de documento</label>
+    <select id="fDocTipo">
+      ${["Contrato Social","Certidão Negativa Federal","Certidão Negativa Estadual","Certidão Negativa Municipal","Alvará de Funcionamento","Cartão CNPJ","Procuração","Outro"].map(t=>`<option>${t}</option>`).join("")}
+    </select>
+  </div>
+  <div class="field"><label>Data de validade (opcional)</label><input type="date" id="fDocValidade"></div>
+  <div class="field"><label>Arquivo</label><input type="file" id="fDocArquivo"></div>
+  <div class="modal-actions"><button id="cancelModal">Cancelar</button><button class="btn-primary" id="saveDoc">Enviar</button></div>`;
+}
+
+/* ================= OBRIGAÇÕES ================= */
+let obrigTab = "entregas";
+function viewObrigacoes(){
+  return `
+  ${topbar("Obrigações Acessórias", "Cronograma de entregas fiscais/contábeis por empresa", `
+    <button class="btn-sm" id="btnNovaObrigacao">+ Nova obrigação (modelo)</button>
+    <button class="btn-primary btn-sm" id="btnNovaEntrega">+ Nova entrega</button>`)}
+  <div class="tabs-inline">
+    <div class="tab-pill ${obrigTab==='entregas'?'active':''}" data-obrigtab="entregas">Entregas / Cronograma</div>
+    <div class="tab-pill ${obrigTab==='modelos'?'active':''}" data-obrigtab="modelos">Modelos de Obrigação</div>
+  </div>
+  ${obrigTab==='entregas'? renderEntregas() : renderModelos()}`;
+}
+function renderEntregas(){
+  const rows = [...STATE.entregas].sort((a,b)=>a.vencimento.localeCompare(b.vencimento));
+  return `<div class="section"><table><thead><tr><th>Vencimento</th><th>Empresa</th><th>Obrigação</th><th>Competência</th><th>Status</th><th></th></tr></thead>
+  <tbody>
+    ${rows.map(en=>{
+      const ob = STATE.obrigacoes.find(o=>o.id===en.obrigacao_id);
+      return `<tr>
+        <td>${fmtDate(en.vencimento)}</td>
+        <td>${escapeHtml(ob? empresaNome(ob.empresa_id):"—")}</td>
+        <td>${escapeHtml(ob? ob.nome:"—")}</td>
+        <td>${escapeHtml(en.competencia)}</td>
+        <td>${dueBadge(en.vencimento, en.status)}</td>
+        <td class="row-actions">
+          ${en.status!=='entregue'? `<button class="icon-btn" data-entrega-status="${en.id}" data-status="entregue">✔ Entregar</button>` : `<button class="icon-btn" data-entrega-status="${en.id}" data-status="pendente">↺ Reabrir</button>`}
+          <button class="icon-btn btn-danger" data-del-entrega="${en.id}">🗑</button>
+        </td>
+      </tr>`;
+    }).join("") || `<tr><td colspan="6"><div class="empty">Nenhuma entrega cadastrada. Crie um modelo de obrigação e gere entregas.</div></td></tr>`}
+  </tbody></table></div>`;
+}
+function renderModelos(){
+  return `<div class="section"><table><thead><tr><th>Empresa</th><th>Obrigação</th><th>Periodicidade</th><th>Dia Vencimento</th><th></th></tr></thead>
+  <tbody>
+    ${STATE.obrigacoes.map(o=>`<tr>
+      <td>${escapeHtml(empresaNome(o.empresa_id))}</td>
+      <td>${escapeHtml(o.nome)}</td>
+      <td>${escapeHtml(o.periodicidade)}</td>
+      <td>${o.dia_vencimento||"—"}</td>
+      <td class="row-actions">
+        <button class="icon-btn" data-gerar-entrega="${o.id}">+ Gerar entrega</button>
+        <button class="icon-btn btn-danger" data-del-obrigacao="${o.id}">🗑</button>
+      </td>
+    </tr>`).join("") || `<tr><td colspan="5"><div class="empty">Nenhum modelo cadastrado ainda.</div></td></tr>`}
+  </tbody></table></div>`;
+}
+function obrigacaoForm(){
+  return `<h3>Novo modelo de obrigação</h3>
+  <div class="field"><label>Empresa</label><select id="fObEmpresa">${empresaOptions()}</select></div>
+  <div class="field"><label>Nome da obrigação</label><input id="fObNome" placeholder="Ex: DAS-MEI, DCTFWeb, PGDAS"></div>
+  <div class="field"><label>Periodicidade</label><select id="fObPeriodo"><option value="mensal">Mensal</option><option value="anual">Anual</option><option value="trimestral">Trimestral</option></select></div>
+  <div class="field"><label>Dia do vencimento</label><input type="number" id="fObDia" min="1" max="31" value="20"></div>
+  <div class="modal-actions"><button id="cancelModal">Cancelar</button><button class="btn-primary" id="saveObrigacao">Salvar</button></div>`;
+}
+function entregaForm(){
+  return `<h3>Nova entrega</h3>
+  <div class="field"><label>Modelo de obrigação</label><select id="fEnObrigacao">${STATE.obrigacoes.map(o=>`<option value="${o.id}">${escapeHtml(empresaNome(o.empresa_id))} — ${escapeHtml(o.nome)}</option>`).join("") || '<option value="">Nenhum modelo cadastrado</option>'}</select></div>
+  <div class="field"><label>Competência (ex: 09/2026)</label><input id="fEnCompetencia"></div>
+  <div class="field"><label>Vencimento</label><input type="date" id="fEnVencimento"></div>
+  <div class="modal-actions"><button id="cancelModal">Cancelar</button><button class="btn-primary" id="saveEntrega">Salvar</button></div>`;
+}
+
+/* ================= FINANCEIRO ================= */
+let finTab = "mensalidades";
+let mensRecebedorFiltro = "todos";
+function viewFinanceiro(){
+  return `
+  ${topbar("Financeiro", "Mensalidades a receber e despesas do escritório", `
+    <button class="btn-primary btn-sm" id="btnNovoFinanceiro">+ ${finTab==='mensalidades'?'Nova mensalidade':'Nova despesa'}</button>`)}
+  <div class="tabs-inline">
+    <div class="tab-pill ${finTab==='mensalidades'?'active':''}" data-fintab="mensalidades">Mensalidades a Receber</div>
+    <div class="tab-pill ${finTab==='despesas'?'active':''}" data-fintab="despesas">Despesas</div>
+  </div>
+  ${finTab==='mensalidades'? renderMensalidades() : renderDespesas()}`;
+}
+function renderMensalidades(){
+  const all = STATE.mensalidades;
+  const totalBruno = all.reduce((s,r)=>s+(r.recebedor==='Bruno'?Number(r.valor||0):0),0);
+  const totalFelipe = all.reduce((s,r)=>s+(r.recebedor==='Felipe'?Number(r.valor||0):0),0);
+  const totalGeral = all.reduce((s,r)=>s+Number(r.valor||0),0);
+  const abertoBruno = all.filter(r=>r.recebedor==='Bruno' && r.status!=='pago').reduce((s,r)=>s+Number(r.valor||0),0);
+  const abertoFelipe = all.filter(r=>r.recebedor==='Felipe' && r.status!=='pago').reduce((s,r)=>s+Number(r.valor||0),0);
+  const abertoGeral = all.filter(r=>r.status!=='pago').reduce((s,r)=>s+Number(r.valor||0),0);
+
+  const rows = [...all]
+    .filter(m=> mensRecebedorFiltro==='todos' || m.recebedor===mensRecebedorFiltro)
+    .sort((a,b)=>a.vencimento.localeCompare(b.vencimento));
+
+  return `
+  <div class="grid-cards">
+    <div class="stat-card"><div class="label">Bruno — recebido/a receber</div><div class="value">${fmtMoney(totalBruno)}</div><div class="delta">${fmtMoney(abertoBruno)} em aberto</div></div>
+    <div class="stat-card"><div class="label">Felipe — recebido/a receber</div><div class="value">${fmtMoney(totalFelipe)}</div><div class="delta">${fmtMoney(abertoFelipe)} em aberto</div></div>
+    <div class="stat-card"><div class="label">Base Total</div><div class="value">${fmtMoney(totalGeral)}</div><div class="delta">${fmtMoney(abertoGeral)} em aberto</div></div>
+  </div>
+  <div class="tabs-inline">
+    <div class="tab-pill ${mensRecebedorFiltro==='todos'?'active':''}" data-mensrecebedor="todos">Todos</div>
+    <div class="tab-pill ${mensRecebedorFiltro==='Bruno'?'active':''}" data-mensrecebedor="Bruno">Bruno</div>
+    <div class="tab-pill ${mensRecebedorFiltro==='Felipe'?'active':''}" data-mensrecebedor="Felipe">Felipe</div>
+  </div>
+  <div class="section"><h2>Mensalidades <span class="count">${rows.length}</span></h2>
+  <table><thead><tr><th>Empresa</th><th>Competência</th><th>Valor</th><th>Vencimento</th><th>Recebedor</th><th>Status</th><th></th></tr></thead>
+  <tbody>
+    ${rows.map(m=>`<tr>
+      <td>${escapeHtml(empresaNome(m.empresa_id))}</td>
+      <td>${escapeHtml(m.competencia)}</td>
+      <td>${fmtMoney(m.valor)}</td>
+      <td>${fmtDate(m.vencimento)}</td>
+      <td>${m.recebedor? `<span class="badge purple">${escapeHtml(m.recebedor)}</span>` : "—"}</td>
+      <td>${dueBadge(m.vencimento, m.status)}</td>
+      <td class="row-actions">
+        ${m.status!=='pago'? `<button class="icon-btn" data-mens-pago="${m.id}">✔ Pago</button>`: `<button class="icon-btn" data-mens-reabrir="${m.id}">↺ Reabrir</button>`}
+        <button class="icon-btn btn-danger" data-del-mens="${m.id}">🗑</button>
+      </td>
+    </tr>`).join("") || `<tr><td colspan="7"><div class="empty">Nenhuma mensalidade cadastrada.</div></td></tr>`}
+  </tbody></table></div>`;
+}
+function renderDespesas(){
+  const rows = [...STATE.despesas].sort((a,b)=>a.vencimento.localeCompare(b.vencimento));
+  const total = rows.filter(r=>r.status!=='pago').reduce((s,r)=>s+Number(r.valor||0),0);
+  return `<div class="section"><h2>Em aberto <span class="count">${fmtMoney(total)}</span></h2>
+  <table><thead><tr><th>Descrição</th><th>Categoria</th><th>Valor</th><th>Vencimento</th><th>Status</th><th></th></tr></thead>
+  <tbody>
+    ${rows.map(d=>`<tr>
+      <td>${escapeHtml(d.descricao)}</td>
+      <td>${escapeHtml(d.categoria||"—")}</td>
+      <td>${fmtMoney(d.valor)}</td>
+      <td>${fmtDate(d.vencimento)}</td>
+      <td>${dueBadge(d.vencimento, d.status)}</td>
+      <td class="row-actions">
+        ${d.status!=='pago'? `<button class="icon-btn" data-desp-pago="${d.id}">✔ Pago</button>`: `<button class="icon-btn" data-desp-reabrir="${d.id}">↺ Reabrir</button>`}
+        <button class="icon-btn btn-danger" data-del-desp="${d.id}">🗑</button>
+      </td>
+    </tr>`).join("") || `<tr><td colspan="6"><div class="empty">Nenhuma despesa cadastrada.</div></td></tr>`}
+  </tbody></table></div>`;
+}
+function mensalidadeForm(){
+  return `<h3>Nova mensalidade</h3>
+  <div class="field"><label>Empresa</label><select id="fMensEmpresa">${empresaOptions()}</select></div>
+  <div class="field"><label>Competência (ex: 09/2026)</label><input id="fMensCompetencia"></div>
+  <div class="field"><label>Valor (R$)</label><input type="number" step="0.01" id="fMensValor"></div>
+  <div class="field"><label>Vencimento</label><input type="date" id="fMensVencimento"></div>
+  <div class="field"><label>Recebedor</label><select id="fMensRecebedor"><option value="">— não definido —</option><option>Bruno</option><option>Felipe</option></select></div>
+  <div class="modal-actions"><button id="cancelModal">Cancelar</button><button class="btn-primary" id="saveMens">Salvar</button></div>`;
+}
+function despesaForm(){
+  return `<h3>Nova despesa</h3>
+  <div class="field"><label>Descrição</label><input id="fDespDescricao"></div>
+  <div class="field"><label>Categoria</label><input id="fDespCategoria" placeholder="Ex: Aluguel, Software, Salários"></div>
+  <div class="field"><label>Valor (R$)</label><input type="number" step="0.01" id="fDespValor"></div>
+  <div class="field"><label>Vencimento</label><input type="date" id="fDespVencimento"></div>
+  <div class="modal-actions"><button id="cancelModal">Cancelar</button><button class="btn-primary" id="saveDesp">Salvar</button></div>`;
+}
+
+/* ================= LICENÇAS ================= */
+function viewLicencas(){
+  const rows = [...STATE.licencas].sort((a,b)=>a.vencimento.localeCompare(b.vencimento));
+  return `
+  ${topbar("Licenças Municipais", "Alvarás e licenças por empresa", `<button class="btn-primary btn-sm" id="btnNovaLicenca">+ Nova licença</button>`)}
+  <div class="section"><table><thead><tr><th>Empresa</th><th>Tipo</th><th>Órgão</th><th>Número</th><th>Vencimento</th><th></th></tr></thead>
+  <tbody>
+    ${rows.map(l=>`<tr>
+      <td>${escapeHtml(empresaNome(l.empresa_id))}</td>
+      <td>${escapeHtml(l.tipo)}</td>
+      <td>${escapeHtml(l.orgao||"—")}</td>
+      <td>${escapeHtml(l.numero||"—")}</td>
+      <td>${dueBadge(l.vencimento)}</td>
+      <td class="row-actions"><button class="icon-btn btn-danger" data-del-licenca="${l.id}">🗑</button></td>
+    </tr>`).join("") || `<tr><td colspan="6"><div class="empty">Nenhuma licença cadastrada.</div></td></tr>`}
+  </tbody></table></div>`;
+}
+function licencaForm(){
+  return `<h3>Nova licença</h3>
+  <div class="field"><label>Empresa</label><select id="fLicEmpresa">${empresaOptions()}</select></div>
+  <div class="field"><label>Tipo</label><input id="fLicTipo" placeholder="Ex: Alvará de Funcionamento"></div>
+  <div class="field"><label>Órgão emissor</label><input id="fLicOrgao"></div>
+  <div class="field"><label>Número</label><input id="fLicNumero"></div>
+  <div class="field"><label>Vencimento</label><input type="date" id="fLicVencimento"></div>
+  <div class="modal-actions"><button id="cancelModal">Cancelar</button><button class="btn-primary" id="saveLicenca">Salvar</button></div>`;
+}
+
+/* ================= TAREFAS ================= */
+function viewTarefas(){
+  const cols = [["a_fazer","A Fazer"],["em_andamento","Em Andamento"],["concluida","Concluída"]];
+  return `
+  ${topbar("Tarefas", "Quadro da equipe", `<button class="btn-primary btn-sm" id="btnNovaTarefa">+ Nova tarefa</button>`)}
+  <div class="kanban">
+    ${cols.map(([key,label])=>`
+      <div class="kanban-col" data-col="${key}">
+        <h4>${label} (${STATE.tarefas.filter(t=>t.status===key).length})</h4>
+        ${STATE.tarefas.filter(t=>t.status===key).map(t=>`
+          <div class="kanban-card" data-tarefa="${t.id}">
+            <div><strong>${escapeHtml(t.titulo)}</strong></div>
+            <div class="meta">${t.empresa_id? escapeHtml(empresaNome(t.empresa_id))+" · ":""}${t.prazo? fmtDate(t.prazo):"sem prazo"}</div>
+            <div class="meta">${t.responsavel_id? "👤 "+escapeHtml((STATE.profiles.find(p=>p.id===t.responsavel_id)||{}).nome||""):"sem responsável"}</div>
+          </div>`).join("")}
+      </div>`).join("")}
+  </div>`;
+}
+function tarefaForm(t){
+  t = t || {};
+  return `<h3>${t.id?"Editar":"Nova"} tarefa</h3>
+  <div class="field"><label>Título</label><input id="fTarTitulo" value="${escapeHtml(t.titulo||"")}"></div>
+  <div class="field"><label>Descrição</label><textarea id="fTarDesc" rows="2">${escapeHtml(t.descricao||"")}</textarea></div>
+  <div class="field"><label>Empresa (opcional)</label><select id="fTarEmpresa">${empresaOptions(t.empresa_id)}</select></div>
+  <div class="field"><label>Responsável</label><select id="fTarResp">${profileOptions(t.responsavel_id)}</select></div>
+  <div class="field"><label>Prioritade</label><select id="fTarPrio"><option value="baixa" ${t.prioridade==='baixa'?'selected':''}>Baixa</option><option value="media" ${!t.prioridade||t.prioridade==='media'?'selected':''}>Média</option><option value="alta" ${t.prioridade==='alta'?'selected':''}>Alta</option></select></div>
+  <div class="field"><label>Prazo</label><input type="date" id="fTarPrazo" value="${t.prazo||""}"></div>
+  <div class="field"><label>Status</label><select id="fTarStatus"><option value="a_fazer" ${!t.status||t.status==='a_fazer'?'selected':''}>A Fazer</option><option value="em_andamento" ${t.status==='em_andamento'?'selected':''}>Em Andamento</option><option value="concluida" ${t.status==='concluida'?'selected':''}>Concluída</option></select></div>
+  <div class="modal-actions"><button id="cancelModal">Cancelar</button><button class="btn-primary" id="saveTarefa" data-id="${t.id||''}">Salvar</button></div>`;
+}
+
+/* ================= AGENDA DE REUNIÕES ================= */
+function viewAgenda(){
+  const hojeStr = new Date().toISOString().slice(0,10);
+  const rows = [...STATE.reunioes].sort((a,b)=>a.data_hora.localeCompare(b.data_hora));
+  const futuras = rows.filter(r=>r.data_hora.slice(0,10)>=hojeStr && r.status!=="cancelada");
+  const passadas = rows.filter(r=>r.data_hora.slice(0,10)<hojeStr || r.status==="cancelada");
+  function linha(r){
+    const hoje = r.data_hora.slice(0,10)===hojeStr;
+    return `<tr style="${hoje?'background:var(--card2)':''}">
+      <td>${new Date(r.data_hora).toLocaleString("pt-BR",{weekday:'short', day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'})}${hoje?' <span class="badge yellow">Hoje</span>':''}</td>
+      <td>${escapeHtml(r.titulo)}</td>
+      <td>${r.empresa_id? escapeHtml(empresaNome(r.empresa_id)) : "—"}</td>
+      <td>${escapeHtml(r.local||"—")}</td>
+      <td>${r.status==='realizada'?'<span class="badge green">Realizada</span>':r.status==='cancelada'?'<span class="badge red">Cancelada</span>':'<span class="badge purple">Agendada</span>'}</td>
+      <td class="row-actions">
+        ${r.status==='agendada'? `<button class="icon-btn" data-reuniao-status="${r.id}" data-status="realizada">✔ Realizada</button><button class="icon-btn btn-danger" data-reuniao-status="${r.id}" data-status="cancelada">✕ Cancelar</button>`:''}
+        <button class="icon-btn btn-danger" data-del-reuniao="${r.id}">🗑</button>
+      </td>
+    </tr>`;
+  }
+  return `
+  ${topbar("Agenda", "Reuniões e compromissos da equipe", `<button class="btn-primary btn-sm" id="btnNovaReuniao">+ Nova reunião</button>`)}
+  <div class="section"><h2>Próximas <span class="count">${futuras.length}</span></h2>
+    <table><thead><tr><th>Quando</th><th>Título</th><th>Empresa</th><th>Local</th><th>Status</th><th></th></tr></thead>
+    <tbody>${futuras.map(linha).join("") || `<tr><td colspan="6"><div class="empty">Nenhuma reunião agendada.</div></td></tr>`}</tbody></table>
+  </div>
+  ${passadas.length? `<div class="section"><h2>Histórico <span class="count">${passadas.length}</span></h2>
+    <table><thead><tr><th>Quando</th><th>Título</th><th>Empresa</th><th>Local</th><th>Status</th><th></th></tr></thead>
+    <tbody>${passadas.map(linha).join("")}</tbody></table>
+  </div>`:""}`;
+}
+function reuniaoForm(){
+  return `<h3>Nova reunião</h3>
+  <div class="field"><label>Título</label><input id="fReuTitulo" placeholder="Ex: Alinhamento fechamento mensal"></div>
+  <div class="field"><label>Empresa (opcional)</label><select id="fReuEmpresa">${empresaOptions()}</select></div>
+  <div class="field"><label>Data e hora</label><input type="datetime-local" id="fReuDataHora"></div>
+  <div class="field"><label>Local</label><input id="fReuLocal" placeholder="Escritório, Google Meet, etc."></div>
+  <div class="field"><label>Participantes</label><input id="fReuParticipantes" placeholder="Nomes separados por vírgula"></div>
+  <div class="field"><label>Observações</label><textarea id="fReuObs" rows="2"></textarea></div>
+  <div class="modal-actions"><button id="cancelModal">Cancelar</button><button class="btn-primary" id="saveReuniao">Salvar</button></div>`;
+}
+
+/* ================= ACTIONS BINDING ================= */
+function bindViewActions(){
+  document.getElementById("cancelModal") && document.getElementById("cancelModal").addEventListener("click", closeModal);
+
+  if(currentView==="empresas"){
+    document.getElementById("btnNovaEmpresa").onclick = ()=> openModal(empresaForm());
+    document.querySelectorAll("[data-edit-empresa]").forEach(b=>b.onclick = ()=>{
+      const e = STATE.empresas.find(e=>e.id===b.dataset.editEmpresa);
+      openModal(empresaForm(e));
+      document.getElementById("saveEmpresa").dataset.id = e.id;
+    });
+    document.querySelectorAll("[data-del-empresa]").forEach(b=>b.onclick = async ()=>{
+      if(!await confirmDialog("Excluir esta empresa? Documentos, obrigações e financeiro vinculados também serão removidos.")) return;
+      await sb.from("empresas").delete().eq("id", b.dataset.delEmpresa);
+      await loadAll(); render();
+    });
+    bindModalCancel();
+  }
+  if(currentView==="documentos"){
+    document.getElementById("btnNovoDoc").onclick = ()=> openModal(docForm());
+    document.getElementById("filtroEmpresaDoc").onchange = (e)=>{ docEmpresaFiltro = e.target.value; render(); };
+    document.querySelectorAll("[data-download-doc]").forEach(b=>b.onclick = ()=> downloadDoc(b.dataset.downloadDoc));
+    document.querySelectorAll("[data-del-doc]").forEach(b=>b.onclick = async ()=>{
+      if(!await confirmDialog("Excluir este documento?")) return;
+      const doc = STATE.documentos.find(d=>d.id===b.dataset.delDoc);
+      if(doc){ await sb.storage.from("documentos").remove([doc.storage_path]); await sb.from("documentos").delete().eq("id", doc.id); }
+      await loadAll(); render();
+    });
+  }
+  if(currentView==="obrigacoes"){
+    document.getElementById("btnNovaObrigacao").onclick = ()=> openModal(obrigacaoForm());
+    document.getElementById("btnNovaEntrega").onclick = ()=> openModal(entregaForm());
+    document.querySelectorAll("[data-obrigtab]").forEach(b=>b.onclick = ()=>{ obrigTab = b.dataset.obrigtab; render(); });
+    document.querySelectorAll("[data-entrega-status]").forEach(b=>b.onclick = async ()=>{
+      await sb.from("obrigacoes_entregas").update({status:b.dataset.status, entregue_em: b.dataset.status==='entregue'? new Date().toISOString().slice(0,10):null}).eq("id", b.dataset.entregaStatus);
+      await loadAll(); render();
+    });
+    document.querySelectorAll("[data-del-entrega]").forEach(b=>b.onclick = async ()=>{
+      if(!await confirmDialog("Excluir esta entrega?")) return;
+      await sb.from("obrigacoes_entregas").delete().eq("id", b.dataset.delEntrega);
+      await loadAll(); render();
+    });
+    document.querySelectorAll("[data-del-obrigacao]").forEach(b=>b.onclick = async ()=>{
+      if(!await confirmDialog("Excluir este modelo de obrigação e suas entregas?")) return;
+      await sb.from("obrigacoes").delete().eq("id", b.dataset.delObrigacao);
+      await loadAll(); render();
+    });
+    document.querySelectorAll("[data-gerar-entrega]").forEach(b=>b.onclick = async ()=>{
+      const ob = STATE.obrigacoes.find(o=>o.id===b.dataset.gerarEntrega);
+      if(!ob) return;
+      const now = new Date();
+      const competencia = String(now.getMonth()+1).padStart(2,"0")+"/"+now.getFullYear();
+      const dia = ob.dia_vencimento || 20;
+      let mes = now.getMonth()+1, ano = now.getFullYear();
+      const venc = `${ano}-${String(mes).padStart(2,"0")}-${String(dia).padStart(2,"0")}`;
+      const { error } = await sb.from("obrigacoes_entregas").insert({ obrigacao_id: ob.id, competencia, vencimento: venc, status:"pendente" });
+      if(error){ toast(error.message, true); return; }
+      await loadAll(); render();
+    });
+  }
+  if(currentView==="financeiro"){
+    document.getElementById("btnNovoFinanceiro").onclick = ()=> openModal(finTab==='mensalidades'? mensalidadeForm() : despesaForm());
+    document.querySelectorAll("[data-fintab]").forEach(b=>b.onclick = ()=>{ finTab = b.dataset.fintab; render(); });
+    document.querySelectorAll("[data-mensrecebedor]").forEach(b=>b.onclick = ()=>{ mensRecebedorFiltro = b.dataset.mensrecebedor; render(); });
+    document.querySelectorAll("[data-mens-pago]").forEach(b=>b.onclick = async ()=>{ await sb.from("mensalidades").update({status:"pago", pago_em:new Date().toISOString().slice(0,10)}).eq("id", b.dataset.mensPago); await loadAll(); render(); });
+    document.querySelectorAll("[data-mens-reabrir]").forEach(b=>b.onclick = async ()=>{ await sb.from("mensalidades").update({status:"pendente", pago_em:null}).eq("id", b.dataset.mensReabrir); await loadAll(); render(); });
+    document.querySelectorAll("[data-del-mens]").forEach(b=>b.onclick = async ()=>{ if(!await confirmDialog("Excluir?")) return; await sb.from("mensalidades").delete().eq("id", b.dataset.delMens); await loadAll(); render(); });
+    document.querySelectorAll("[data-desp-pago]").forEach(b=>b.onclick = async ()=>{ await sb.from("despesas").update({status:"pago", pago_em:new Date().toISOString().slice(0,10)}).eq("id", b.dataset.despPago); await loadAll(); render(); });
+    document.querySelectorAll("[data-desp-reabrir]").forEach(b=>b.onclick = async ()=>{ await sb.from("despesas").update({status:"pendente", pago_em:null}).eq("id", b.dataset.despReabrir); await loadAll(); render(); });
+    document.querySelectorAll("[data-del-desp]").forEach(b=>b.onclick = async ()=>{ if(!await confirmDialog("Excluir?")) return; await sb.from("despesas").delete().eq("id", b.dataset.delDesp); await loadAll(); render(); });
+  }
+  if(currentView==="licencas"){
+    document.getElementById("btnNovaLicenca").onclick = ()=> openModal(licencaForm());
+    document.querySelectorAll("[data-del-licenca]").forEach(b=>b.onclick = async ()=>{ if(!await confirmDialog("Excluir?")) return; await sb.from("licencas").delete().eq("id", b.dataset.delLicenca); await loadAll(); render(); });
+  }
+  if(currentView==="tarefas"){
+    document.getElementById("btnNovaTarefa").onclick = ()=> openModal(tarefaForm());
+    document.querySelectorAll("[data-tarefa]").forEach(b=>b.onclick = ()=>{
+      const t = STATE.tarefas.find(t=>t.id===b.dataset.tarefa);
+      openModal(tarefaForm(t));
+    });
+  }
+  if(currentView==="agenda"){
+    document.getElementById("btnNovaReuniao").onclick = ()=> openModal(reuniaoForm());
+    document.querySelectorAll("[data-reuniao-status]").forEach(b=>b.onclick = async ()=>{
+      await sb.from("reunioes").update({status:b.dataset.status}).eq("id", b.dataset.reuniaoStatus);
+      await loadAll(); render();
+    });
+    document.querySelectorAll("[data-del-reuniao]").forEach(b=>b.onclick = async ()=>{
+      if(!await confirmDialog("Excluir esta reunião?")) return;
+      await sb.from("reunioes").delete().eq("id", b.dataset.delReuniao);
+      await loadAll(); render();
+    });
+  }
+  if(currentView==="dashboard"){
+    const bc = document.getElementById("briefingClose");
+    if(bc) bc.onclick = ()=>{ briefingDismissed = true; render(); };
+  }
+}
+
+/* Delegated save handlers — bound once globally to avoid stacking listeners across renders */
+document.body.addEventListener("click", (e)=>{
+  empresaSaveHandler(e);
+  docSaveHandler(e);
+  obrigacoesSaveHandler(e);
+  financeiroSaveHandler(e);
+  licencaSaveHandler(e);
+  tarefaSaveHandler(e);
+  reuniaoSaveHandler(e);
+});
+
+async function empresaSaveHandler(e){
+  if(e.target.id !== "saveEmpresa") return;
+  const id = e.target.dataset.id;
+  const payload = {
+    nome: document.getElementById("fNome").value.trim(),
+    cnpj: document.getElementById("fCnpj").value.trim(),
+    regime: document.getElementById("fRegime").value,
+    responsavel: document.getElementById("fResp").value.trim(),
+    telefone: document.getElementById("fTel").value.trim(),
+    email: document.getElementById("fEmail").value.trim(),
+    endereco: document.getElementById("fEnd").value.trim(),
+    observacoes: document.getElementById("fObs").value.trim(),
+    ativo: document.getElementById("fAtivo").checked,
+  };
+  if(!payload.nome){ toast("Informe o nome da empresa", true); return; }
+  const { error } = id ? await sb.from("empresas").update(payload).eq("id", id) : await sb.from("empresas").insert(payload);
+  if(error){ toast(error.message, true); return; }
+  closeModal(); toast("Empresa salva!"); await loadAll(); render();
+}
+async function docSaveHandler(e){
+  if(e.target.id !== "saveDoc") return;
+  const empresa_id = document.getElementById("fDocEmpresa").value;
+  const tipo = document.getElementById("fDocTipo").value;
+  const data_validade = document.getElementById("fDocValidade").value || null;
+  const fileInput = document.getElementById("fDocArquivo");
+  const file = fileInput.files[0];
+  if(!empresa_id || !file){ toast("Selecione a empresa e o arquivo", true); return; }
+  const path = `${empresa_id}/${Date.now()}_${file.name}`;
+  const { error: upErr } = await sb.storage.from("documentos").upload(path, file);
+  if(upErr){ toast(upErr.message, true); return; }
+  const { error } = await sb.from("documentos").insert({ empresa_id, tipo, nome_arquivo:file.name, storage_path:path, tamanho:file.size, data_validade });
+  if(error){ toast(error.message, true); return; }
+  closeModal(); toast("Documento enviado!"); await loadAll(); render();
+}
+async function downloadDoc(id){
+  const doc = STATE.documentos.find(d=>d.id===id);
+  if(!doc) return;
+  const { data, error } = await sb.storage.from("documentos").createSignedUrl(doc.storage_path, 60);
+  if(error){ toast(error.message, true); return; }
+  window.open(data.signedUrl, "_blank");
+}
+async function obrigacoesSaveHandler(e){
+  if(e.target.id === "saveObrigacao"){
+    const payload = {
+      empresa_id: document.getElementById("fObEmpresa").value,
+      nome: document.getElementById("fObNome").value.trim(),
+      periodicidade: document.getElementById("fObPeriodo").value,
+      dia_vencimento: Number(document.getElementById("fObDia").value)||20,
+    };
+    if(!payload.empresa_id || !payload.nome){ toast("Preencha empresa e nome", true); return; }
+    const { error } = await sb.from("obrigacoes").insert(payload);
+    if(error){ toast(error.message, true); return; }
+    closeModal(); toast("Modelo criado!"); await loadAll(); render();
+  }
+  if(e.target.id === "saveEntrega"){
+    const payload = {
+      obrigacao_id: document.getElementById("fEnObrigacao").value,
+      competencia: document.getElementById("fEnCompetencia").value.trim(),
+      vencimento: document.getElementById("fEnVencimento").value,
+      status: "pendente",
+    };
+    if(!payload.obrigacao_id || !payload.competencia || !payload.vencimento){ toast("Preencha todos os campos", true); return; }
+    const { error } = await sb.from("obrigacoes_entregas").insert(payload);
+    if(error){ toast(error.message, true); return; }
+    closeModal(); toast("Entrega criada!"); await loadAll(); render();
+  }
+}
+async function financeiroSaveHandler(e){
+  if(e.target.id === "saveMens"){
+    const payload = {
+      empresa_id: document.getElementById("fMensEmpresa").value,
+      competencia: document.getElementById("fMensCompetencia").value.trim(),
+      valor: Number(document.getElementById("fMensValor").value)||0,
+      vencimento: document.getElementById("fMensVencimento").value,
+      recebedor: document.getElementById("fMensRecebedor").value || null,
+      status: "pendente",
+    };
+    if(!payload.empresa_id || !payload.vencimento){ toast("Preencha empresa e vencimento", true); return; }
+    const { error } = await sb.from("mensalidades").insert(payload);
+    if(error){ toast(error.message, true); return; }
+    closeModal(); toast("Mensalidade criada!"); await loadAll(); render();
+  }
+  if(e.target.id === "saveDesp"){
+    const payload = {
+      descricao: document.getElementById("fDespDescricao").value.trim(),
+      categoria: document.getElementById("fDespCategoria").value.trim(),
+      valor: Number(document.getElementById("fDespValor").value)||0,
+      vencimento: document.getElementById("fDespVencimento").value,
+      status: "pendente",
+    };
+    if(!payload.descricao || !payload.vencimento){ toast("Preencha descrição e vencimento", true); return; }
+    const { error } = await sb.from("despesas").insert(payload);
+    if(error){ toast(error.message, true); return; }
+    closeModal(); toast("Despesa criada!"); await loadAll(); render();
+  }
+}
+async function licencaSaveHandler(e){
+  if(e.target.id !== "saveLicenca") return;
+  const payload = {
+    empresa_id: document.getElementById("fLicEmpresa").value,
+    tipo: document.getElementById("fLicTipo").value.trim(),
+    orgao: document.getElementById("fLicOrgao").value.trim(),
+    numero: document.getElementById("fLicNumero").value.trim(),
+    vencimento: document.getElementById("fLicVencimento").value,
+  };
+  if(!payload.empresa_id || !payload.tipo || !payload.vencimento){ toast("Preencha empresa, tipo e vencimento", true); return; }
+  const { error } = await sb.from("licencas").insert(payload);
+  if(error){ toast(error.message, true); return; }
+  closeModal(); toast("Licença criada!"); await loadAll(); render();
+}
+async function tarefaSaveHandler(e){
+  if(e.target.id !== "saveTarefa") return;
+  const id = e.target.dataset.id;
+  const payload = {
+    titulo: document.getElementById("fTarTitulo").value.trim(),
+    descricao: document.getElementById("fTarDesc").value.trim(),
+    empresa_id: document.getElementById("fTarEmpresa").value || null,
+    responsavel_id: document.getElementById("fTarResp").value || null,
+    prioridade: document.getElementById("fTarPrio").value,
+    prazo: document.getElementById("fTarPrazo").value || null,
+    status: document.getElementById("fTarStatus").value,
+  };
+  if(!payload.titulo){ toast("Informe o título", true); return; }
+  const { error } = id ? await sb.from("tarefas").update(payload).eq("id", id) : await sb.from("tarefas").insert(payload);
+  if(error){ toast(error.message, true); return; }
+  closeModal(); toast("Tarefa salva!"); await loadAll(); render();
+}
+async function reuniaoSaveHandler(e){
+  if(e.target.id !== "saveReuniao") return;
+  const dataHora = document.getElementById("fReuDataHora").value;
+  const payload = {
+    titulo: document.getElementById("fReuTitulo").value.trim(),
+    empresa_id: document.getElementById("fReuEmpresa").value || null,
+    data_hora: dataHora ? new Date(dataHora).toISOString() : null,
+    local: document.getElementById("fReuLocal").value.trim(),
+    participantes: document.getElementById("fReuParticipantes").value.trim(),
+    observacoes: document.getElementById("fReuObs").value.trim(),
+    status: "agendada",
+  };
+  if(!payload.titulo || !payload.data_hora){ toast("Preencha título e data/hora", true); return; }
+  const { error } = await sb.from("reunioes").insert(payload);
+  if(error){ toast(error.message, true); return; }
+  closeModal(); toast("Reunião agendada!"); await loadAll(); render();
+}
+function bindModalCancel(){}
+</script>
+</body>
+</html>
