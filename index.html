@@ -15,6 +15,7 @@
   --border:#e2ded2; --text:#1c2321; --text2:#5b6460; --text3:#8b938d;
   --accent:#0f6f5c; --accent2:#128268; --accent-ink:#ffffff;
   --green:#1f8a5f; --yellow:#a3730a; --red:#c23b3b; --purple:#6a5acd;
+  --blue:#2563eb; --teal:#0d9488; --orange:#c2610a; --pink:#c22a7d;
   --shadow:0 8px 24px rgba(30,35,30,.07);
   --font-display:'Sora',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
   --font-body:'Public Sans',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
@@ -25,6 +26,7 @@
     --border:#2b3634; --text:#e8ece9; --text2:#a2ada7; --text3:#71807a;
     --accent:#2fd6ac; --accent2:#5be3c4; --accent-ink:#08211b;
     --green:#34c98f; --yellow:#e0b34d; --red:#f0817a; --purple:#b3a3f5;
+    --blue:#5b9bff; --teal:#3fd6c4; --orange:#f0a355; --pink:#f087bb;
     --shadow:0 8px 24px rgba(0,0,0,.4);
   }
 }
@@ -33,6 +35,7 @@
   --border:#2b3634; --text:#e8ece9; --text2:#a2ada7; --text3:#71807a;
   --accent:#2fd6ac; --accent2:#5be3c4; --accent-ink:#08211b;
   --green:#34c98f; --yellow:#e0b34d; --red:#f0817a; --purple:#b3a3f5;
+  --blue:#5b9bff; --teal:#3fd6c4; --orange:#f0a355; --pink:#f087bb;
   --shadow:0 8px 24px rgba(0,0,0,.4);
 }
 *{box-sizing:border-box; margin:0; padding:0;}
@@ -94,6 +97,10 @@ tr:hover td{background:var(--card2);}
 .badge.red{background:rgba(240,85,90,.15); color:var(--red);}
 .badge.gray{background:var(--card2); color:var(--text3);}
 .badge.purple{background:rgba(167,139,250,.15); color:var(--purple);}
+.badge.blue{background:rgba(59,130,246,.15); color:var(--blue);}
+.badge.teal{background:rgba(20,184,166,.15); color:var(--teal);}
+.badge.orange{background:rgba(249,115,22,.15); color:var(--orange);}
+.badge.pink{background:rgba(236,72,153,.15); color:var(--pink);}
 .empty{color:var(--text3); font-size:13px; padding:30px 10px; text-align:center;}
 .toolbar{display:flex; gap:10px; margin-bottom:16px; flex-wrap:wrap; align-items:center;}
 input, select, textarea{
@@ -128,6 +135,42 @@ input:focus, select:focus, textarea:focus{border-color:var(--accent);}
 .briefing-text{font-size:13px; color:var(--text2); line-height:1.6;}
 .briefing-close{position:absolute; top:14px; right:14px; border:none; background:transparent; color:var(--text3); padding:2px 6px; font-size:13px;}
 .briefing-close:hover{color:var(--text); border:none;}
+.view-toggle{display:flex; gap:4px; background:var(--card2); border-radius:9px; padding:3px;}
+.view-toggle button{border:none; background:transparent; padding:6px 12px; font-size:12px; border-radius:7px;}
+.view-toggle button.active{background:var(--card); box-shadow:var(--shadow); color:var(--accent);}
+.feed{display:flex; flex-direction:column; gap:0;}
+.feed-day{display:flex; gap:16px; padding:14px 0; border-bottom:1px solid var(--border);}
+.feed-day:last-child{border-bottom:none;}
+.feed-day-label{width:96px; flex-shrink:0; padding-top:2px;}
+.feed-day-label .dow{font-size:11px; color:var(--text3); text-transform:uppercase; letter-spacing:.4px;}
+.feed-day-label .dom{font-family:var(--font-display); font-size:20px; font-weight:700;}
+.feed-day-label.today .dom{color:var(--accent);}
+.feed-items{flex:1; display:flex; flex-direction:column; gap:8px;}
+.feed-item{display:flex; align-items:center; gap:10px; padding:10px 12px; background:var(--card2); border-radius:10px; font-size:13px;}
+.feed-item .fi-dot{width:8px; height:8px; border-radius:50%; flex-shrink:0;}
+.feed-item .fi-main{flex:1; min-width:0;}
+.feed-item .fi-title{font-weight:600;}
+.feed-item .fi-sub{color:var(--text3); font-size:11px; margin-top:1px;}
+.feed-item .fi-value{font-weight:700; font-variant-numeric:tabular-nums; white-space:nowrap;}
+.cal-nav{display:flex; align-items:center; gap:10px; margin-bottom:14px;}
+.cal-nav .cal-title{font-family:var(--font-display); font-weight:700; font-size:15px; min-width:150px; text-align:center; text-transform:capitalize;}
+.calendar{display:grid; grid-template-columns:repeat(7,1fr); gap:6px;}
+.cal-head{font-size:11px; color:var(--text3); text-align:center; font-weight:700; padding:4px 0; text-transform:uppercase;}
+.cal-day{background:var(--card2); border-radius:9px; min-height:76px; padding:6px; font-size:11px; border:1px solid transparent;}
+.cal-day.today{border-color:var(--accent);}
+.cal-day.empty{background:transparent;}
+.cal-day .dnum{font-weight:700; margin-bottom:4px; color:var(--text2);}
+.cal-day .cev{border-radius:5px; padding:2px 5px; margin-bottom:2px; font-size:10px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.cal-day .cev.pago{background:rgba(62,207,142,.2); color:var(--green);}
+.cal-day .cev.pendente{background:rgba(240,180,41,.2); color:var(--yellow);}
+.cal-day .cev.atrasado{background:rgba(240,85,90,.2); color:var(--red);}
+.cal-day .ctotal{font-size:10px; color:var(--text3); margin-top:2px; font-variant-numeric:tabular-nums;}
+@media print{
+  .sidebar, .actions, .modal-overlay, .briefing-close, #toastEl, .tabs-inline, .view-toggle{display:none !important;}
+  .main{padding:0 !important;}
+  body{background:#fff !important; color:#000 !important;}
+  .section, .stat-card{box-shadow:none !important; border:1px solid #ccc !important;}
+}
 .kanban{display:grid; grid-template-columns:repeat(3,1fr); gap:14px;}
 .kanban-col{background:var(--card2); border-radius:12px; padding:12px; min-height:200px;}
 .kanban-col h4{font-size:12px; text-transform:uppercase; color:var(--text3); margin-bottom:10px; letter-spacing:.4px;}
@@ -210,6 +253,35 @@ function daysUntil(d){ if(!d) return null; const today=new Date(); today.setHour
 function escapeHtml(s){ return (s==null?"":s).toString().replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
 function uid(){ return crypto.randomUUID(); }
 function empresaNome(id){ const e = STATE.empresas.find(e=>e.id===id); return e? e.nome : "—"; }
+/* ================= TIPOS DE OBRIGAÇÃO (fixos) ================= */
+const TIPOS_OBRIGACAO = [
+  { id:"Holerite", label:"Holerite / Folha", icon:"💰", cls:"purple" },
+  { id:"DCTFWeb",  label:"DCTFWeb",           icon:"📄", cls:"blue" },
+  { id:"DAS",      label:"DAS",               icon:"🧾", cls:"yellow" },
+  { id:"DAS-MEI",  label:"DAS-MEI",           icon:"🧾", cls:"teal" },
+  { id:"MIT",      label:"MIT",               icon:"📋", cls:"orange" },
+  { id:"PGDAS",    label:"PGDAS",             icon:"📊", cls:"pink" },
+  { id:"INSS",     label:"INSS",              icon:"🏥", cls:"red" },
+  { id:"FGTS",     label:"FGTS",              icon:"🏦", cls:"green" },
+  { id:"Outro",    label:"Outro",             icon:"📎", cls:"gray" },
+];
+function tipoInfo(id){ return TIPOS_OBRIGACAO.find(t=>t.id===id) || TIPOS_OBRIGACAO[TIPOS_OBRIGACAO.length-1]; }
+function tipoBadge(id){ const t = tipoInfo(id); return `<span class="badge ${t.cls}">${t.icon} ${t.label}</span>`; }
+function tipoOptions(selected){ return TIPOS_OBRIGACAO.map(t=>`<option value="${t.id}" ${t.id===selected?'selected':''}>${t.icon} ${t.label}</option>`).join(""); }
+
+/* ================= EXPORT (CSV / PDF) ================= */
+function exportCSV(filename, headers, rows){
+  const esc = v => { const s = (v==null?"":String(v)); return /[",;\n]/.test(s) ? '"'+s.replace(/"/g,'""')+'"' : s; };
+  const lines = [headers.map(esc).join(";"), ...rows.map(r=>r.map(esc).join(";"))];
+  const blob = new Blob(["﻿"+lines.join("\n")], {type:"text/csv;charset=utf-8;"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+function printPage(){ window.print(); }
+
 function empresaOptions(selected){ return `<option value="">— selecione —</option>` + STATE.empresas.map(e=>`<option value="${e.id}" ${e.id===selected?'selected':''}>${escapeHtml(e.nome)}</option>`).join(""); }
 function profileOptions(selected){ return `<option value="">— ninguém —</option>` + STATE.profiles.map(p=>`<option value="${p.id}" ${p.id===selected?'selected':''}>${escapeHtml(p.nome||p.email)}</option>`).join(""); }
 
@@ -297,7 +369,7 @@ document.querySelectorAll(".nav-item[data-view]").forEach(el=>{
 });
 
 /* ================= DATA LOADING ================= */
-async function loadAll(){
+async function loadAllOnce(){
   const [empresas, documentos, obrigacoes, entregas, mensalidades, despesas, licencas, tarefas, profiles, reunioes] = await Promise.all([
     sb.from("empresas").select("*").order("nome"),
     sb.from("documentos").select("*").order("created_at",{ascending:false}),
@@ -310,6 +382,8 @@ async function loadAll(){
     sb.from("profiles").select("*").order("nome"),
     sb.from("reunioes").select("*").order("data_hora"),
   ]);
+  const results = {empresas, documentos, obrigacoes, entregas, mensalidades, despesas, licencas, tarefas, profiles, reunioes};
+  const hadError = Object.values(results).some(r=>r.error);
   STATE.empresas = empresas.data || [];
   STATE.documentos = documentos.data || [];
   STATE.obrigacoes = obrigacoes.data || [];
@@ -320,9 +394,15 @@ async function loadAll(){
   STATE.tarefas = tarefas.data || [];
   STATE.profiles = profiles.data || [];
   STATE.reunioes = reunioes.data || [];
+  return hadError;
+}
+async function loadAll(){
+  const hadError = await loadAllOnce();
+  if(hadError){ await new Promise(r=>setTimeout(r,500)); await loadAllOnce(); }
 }
 
 async function bootstrap(){
+  await sb.auth.getSession();
   await loadAll();
   render();
 }
@@ -355,11 +435,11 @@ function viewDashboard(){
   const tarefasAbertas = STATE.tarefas.filter(t=>t.status!=="concluida");
 
   const eventos = [
-    ...entregasPend.map(e=>({data:e.vencimento, texto:`Obrigação: ${obrigacaoNome(e.obrigacao_id)} (${e.competencia})`, tipo:"Fiscal"})),
-    ...mensAberto.map(m=>({data:m.vencimento, texto:`Mensalidade ${empresaNome(m.empresa_id)} (${m.competencia})`, tipo:"Financeiro"})),
-    ...STATE.licencas.map(l=>({data:l.vencimento, texto:`Licença ${l.tipo} — ${empresaNome(l.empresa_id)}`, tipo:"Licença"})),
-    ...STATE.despesas.filter(d=>d.status!=="pago").map(d=>({data:d.vencimento, texto:`Despesa: ${d.descricao}`, tipo:"Despesa"})),
-    ...STATE.reunioes.filter(r=>r.status!=="cancelada").map(r=>({data:r.data_hora.slice(0,10), texto:`Reunião: ${r.titulo}${r.empresa_id? " — "+empresaNome(r.empresa_id):""}`, tipo:"Reunião"})),
+    ...entregasPend.map(e=>{ const ob = STATE.obrigacoes.find(o=>o.id===e.obrigacao_id); return {data:e.vencimento, texto:`${ob? empresaNome(ob.empresa_id):"—"} (${e.competencia})`, badge: ob? tipoBadge(ob.tipo) : '<span class="badge gray">Obrigação</span>'}; }),
+    ...mensAberto.map(m=>({data:m.vencimento, texto:`Mensalidade ${empresaNome(m.empresa_id)} (${m.competencia})`, badge:'<span class="badge green">💵 Financeiro</span>'})),
+    ...STATE.licencas.map(l=>({data:l.vencimento, texto:`Licença ${l.tipo} — ${empresaNome(l.empresa_id)}`, badge:'<span class="badge orange">🪪 Licença</span>'})),
+    ...STATE.despesas.filter(d=>d.status!=="pago").map(d=>({data:d.vencimento, texto:`Despesa: ${d.descricao}`, badge:'<span class="badge red">💸 Despesa</span>'})),
+    ...STATE.reunioes.filter(r=>r.status!=="cancelada").map(r=>({data:r.data_hora.slice(0,10), texto:`Reunião: ${r.titulo}${r.empresa_id? " — "+empresaNome(r.empresa_id):""}`, badge:'<span class="badge blue">📅 Reunião</span>'})),
   ].filter(e=>e.data).sort((a,b)=>a.data.localeCompare(b.data)).slice(0,10);
 
   return `
@@ -375,7 +455,7 @@ function viewDashboard(){
   <div class="section">
     <h2>Próximos Vencimentos <span class="count">${eventos.length}</span></h2>
     ${eventos.length? `<table><thead><tr><th>Data</th><th>Descrição</th><th>Tipo</th><th>Status</th></tr></thead><tbody>
-      ${eventos.map(e=>`<tr><td>${fmtDate(e.data)}</td><td>${escapeHtml(e.texto)}</td><td><span class="badge purple">${e.tipo}</span></td><td>${dueBadge(e.data)}</td></tr>`).join("")}
+      ${eventos.map(e=>`<tr><td>${fmtDate(e.data)}</td><td>${escapeHtml(e.texto)}</td><td>${e.badge}</td><td>${dueBadge(e.data)}</td></tr>`).join("")}
     </tbody></table>` : `<div class="empty">Nada por enquanto. Cadastre empresas e obrigações para começar.</div>`}
   </div>`;
 }
@@ -429,6 +509,7 @@ function viewEmpresas(){
   const rows = STATE.empresas;
   return `
   ${topbar("Empresas", `${rows.length} cadastradas`, `
+    <button class="btn-sm" id="btnExportEmpresas">⬇ CSV</button>
     <button class="btn-primary btn-sm" id="btnNovaEmpresa">+ Nova empresa</button>`)}
   <div class="section">
     <table><thead><tr><th>Nome</th><th>CNPJ</th><th>Regime</th><th>Responsável</th><th>Status</th><th></th></tr></thead>
@@ -522,14 +603,19 @@ function viewObrigacoes(){
 }
 function renderEntregas(){
   const rows = [...STATE.entregas].sort((a,b)=>a.vencimento.localeCompare(b.vencimento));
-  return `<div class="section"><table><thead><tr><th>Vencimento</th><th>Empresa</th><th>Obrigação</th><th>Competência</th><th>Status</th><th></th></tr></thead>
+  return `<div class="section">
+  <div class="toolbar" style="justify-content:flex-end">
+    <button class="btn-sm" id="btnExportEntregas">⬇ CSV</button>
+    <button class="btn-sm" id="btnPrintObrigacoes">🖨 Imprimir/PDF</button>
+  </div>
+  <table><thead><tr><th>Vencimento</th><th>Empresa</th><th>Obrigação</th><th>Competência</th><th>Status</th><th></th></tr></thead>
   <tbody>
     ${rows.map(en=>{
       const ob = STATE.obrigacoes.find(o=>o.id===en.obrigacao_id);
       return `<tr>
         <td>${fmtDate(en.vencimento)}</td>
         <td>${escapeHtml(ob? empresaNome(ob.empresa_id):"—")}</td>
-        <td>${escapeHtml(ob? ob.nome:"—")}</td>
+        <td>${ob? tipoBadge(ob.tipo) : "—"}${ob && ob.nome ? ' <span style="color:var(--text3)">'+escapeHtml(ob.nome)+'</span>' : ''}</td>
         <td>${escapeHtml(en.competencia)}</td>
         <td>${dueBadge(en.vencimento, en.status)}</td>
         <td class="row-actions">
@@ -541,31 +627,33 @@ function renderEntregas(){
   </tbody></table></div>`;
 }
 function renderModelos(){
-  return `<div class="section"><table><thead><tr><th>Empresa</th><th>Obrigação</th><th>Periodicidade</th><th>Dia Vencimento</th><th></th></tr></thead>
+  return `<div class="section"><table><thead><tr><th>Empresa</th><th>Tipo</th><th>Detalhe</th><th>Periodicidade</th><th>Dia Vencimento</th><th></th></tr></thead>
   <tbody>
     ${STATE.obrigacoes.map(o=>`<tr>
       <td>${escapeHtml(empresaNome(o.empresa_id))}</td>
-      <td>${escapeHtml(o.nome)}</td>
+      <td>${tipoBadge(o.tipo)}</td>
+      <td>${escapeHtml(o.nome||"—")}</td>
       <td>${escapeHtml(o.periodicidade)}</td>
       <td>${o.dia_vencimento||"—"}</td>
       <td class="row-actions">
         <button class="icon-btn" data-gerar-entrega="${o.id}">+ Gerar entrega</button>
         <button class="icon-btn btn-danger" data-del-obrigacao="${o.id}">🗑</button>
       </td>
-    </tr>`).join("") || `<tr><td colspan="5"><div class="empty">Nenhum modelo cadastrado ainda.</div></td></tr>`}
+    </tr>`).join("") || `<tr><td colspan="6"><div class="empty">Nenhum modelo cadastrado ainda.</div></td></tr>`}
   </tbody></table></div>`;
 }
 function obrigacaoForm(){
   return `<h3>Novo modelo de obrigação</h3>
   <div class="field"><label>Empresa</label><select id="fObEmpresa">${empresaOptions()}</select></div>
-  <div class="field"><label>Nome da obrigação</label><input id="fObNome" placeholder="Ex: DAS-MEI, DCTFWeb, PGDAS"></div>
+  <div class="field"><label>Tipo</label><select id="fObTipo">${tipoOptions()}</select></div>
+  <div class="field"><label>Detalhe (opcional)</label><input id="fObNome" placeholder="Ex: competência específica, observação"></div>
   <div class="field"><label>Periodicidade</label><select id="fObPeriodo"><option value="mensal">Mensal</option><option value="anual">Anual</option><option value="trimestral">Trimestral</option></select></div>
   <div class="field"><label>Dia do vencimento</label><input type="number" id="fObDia" min="1" max="31" value="20"></div>
   <div class="modal-actions"><button id="cancelModal">Cancelar</button><button class="btn-primary" id="saveObrigacao">Salvar</button></div>`;
 }
 function entregaForm(){
   return `<h3>Nova entrega</h3>
-  <div class="field"><label>Modelo de obrigação</label><select id="fEnObrigacao">${STATE.obrigacoes.map(o=>`<option value="${o.id}">${escapeHtml(empresaNome(o.empresa_id))} — ${escapeHtml(o.nome)}</option>`).join("") || '<option value="">Nenhum modelo cadastrado</option>'}</select></div>
+  <div class="field"><label>Modelo de obrigação</label><select id="fEnObrigacao">${STATE.obrigacoes.map(o=>`<option value="${o.id}">${escapeHtml(empresaNome(o.empresa_id))} — ${tipoInfo(o.tipo).label}</option>`).join("") || '<option value="">Nenhum modelo cadastrado</option>'}</select></div>
   <div class="field"><label>Competência (ex: 09/2026)</label><input id="fEnCompetencia"></div>
   <div class="field"><label>Vencimento</label><input type="date" id="fEnVencimento"></div>
   <div class="modal-actions"><button id="cancelModal">Cancelar</button><button class="btn-primary" id="saveEntrega">Salvar</button></div>`;
@@ -574,6 +662,8 @@ function entregaForm(){
 /* ================= FINANCEIRO ================= */
 let finTab = "mensalidades";
 let mensRecebedorFiltro = "todos";
+let mensVisao = "feed";
+let calMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
 function viewFinanceiro(){
   return `
   ${topbar("Financeiro", "Mensalidades a receber e despesas do escritório", `
@@ -603,12 +693,25 @@ function renderMensalidades(){
     <div class="stat-card"><div class="label">Felipe — recebido/a receber</div><div class="value">${fmtMoney(totalFelipe)}</div><div class="delta">${fmtMoney(abertoFelipe)} em aberto</div></div>
     <div class="stat-card"><div class="label">Base Total</div><div class="value">${fmtMoney(totalGeral)}</div><div class="delta">${fmtMoney(abertoGeral)} em aberto</div></div>
   </div>
-  <div class="tabs-inline">
-    <div class="tab-pill ${mensRecebedorFiltro==='todos'?'active':''}" data-mensrecebedor="todos">Todos</div>
-    <div class="tab-pill ${mensRecebedorFiltro==='Bruno'?'active':''}" data-mensrecebedor="Bruno">Bruno</div>
-    <div class="tab-pill ${mensRecebedorFiltro==='Felipe'?'active':''}" data-mensrecebedor="Felipe">Felipe</div>
+  <div class="toolbar">
+    <div class="tabs-inline" style="margin-bottom:0">
+      <div class="tab-pill ${mensRecebedorFiltro==='todos'?'active':''}" data-mensrecebedor="todos">Todos</div>
+      <div class="tab-pill ${mensRecebedorFiltro==='Bruno'?'active':''}" data-mensrecebedor="Bruno">Bruno</div>
+      <div class="tab-pill ${mensRecebedorFiltro==='Felipe'?'active':''}" data-mensrecebedor="Felipe">Felipe</div>
+    </div>
+    <div style="flex:1"></div>
+    <div class="view-toggle">
+      <button class="${mensVisao==='feed'?'active':''}" data-mensvisao="feed">Feed</button>
+      <button class="${mensVisao==='calendario'?'active':''}" data-mensvisao="calendario">Calendário</button>
+      <button class="${mensVisao==='lista'?'active':''}" data-mensvisao="lista">Lista</button>
+    </div>
+    <button class="btn-sm" id="btnExportMens">⬇ CSV</button>
+    <button class="btn-sm" id="btnPrintMens">🖨 Imprimir/PDF</button>
   </div>
-  <div class="section"><h2>Mensalidades <span class="count">${rows.length}</span></h2>
+  ${mensVisao==='feed'? renderMensFeed(rows) : mensVisao==='calendario'? renderMensCalendario(rows) : renderMensLista(rows)}`;
+}
+function renderMensLista(rows){
+  return `<div class="section"><h2>Mensalidades <span class="count">${rows.length}</span></h2>
   <table><thead><tr><th>Empresa</th><th>Competência</th><th>Valor</th><th>Vencimento</th><th>Recebedor</th><th>Status</th><th></th></tr></thead>
   <tbody>
     ${rows.map(m=>`<tr>
@@ -624,6 +727,81 @@ function renderMensalidades(){
       </td>
     </tr>`).join("") || `<tr><td colspan="7"><div class="empty">Nenhuma mensalidade cadastrada.</div></td></tr>`}
   </tbody></table></div>`;
+}
+function renderMensFeed(rows){
+  if(!rows.length) return `<div class="section"><div class="empty">Nenhuma mensalidade cadastrada.</div></div>`;
+  const hojeStr = new Date().toISOString().slice(0,10);
+  const porDia = {};
+  rows.forEach(m=>{ (porDia[m.vencimento] = porDia[m.vencimento]||[]).push(m); });
+  const dias = Object.keys(porDia).sort();
+  return `<div class="section"><div class="feed">
+    ${dias.map(dia=>{
+      const dt = new Date(dia+"T00:00:00");
+      const isToday = dia===hojeStr;
+      return `<div class="feed-day">
+        <div class="feed-day-label ${isToday?'today':''}">
+          <div class="dow">${dt.toLocaleDateString('pt-BR',{weekday:'short'})}</div>
+          <div class="dom">${dt.getDate()}</div>
+          <div class="dow">${dt.toLocaleDateString('pt-BR',{month:'short'})}</div>
+        </div>
+        <div class="feed-items">
+          ${porDia[dia].map(m=>{
+            const dotColor = m.status==='pago'? 'var(--green)' : daysUntil(m.vencimento)<0? 'var(--red)' : 'var(--yellow)';
+            return `<div class="feed-item">
+              <span class="fi-dot" style="background:${dotColor}"></span>
+              <div class="fi-main">
+                <div class="fi-title">${escapeHtml(empresaNome(m.empresa_id))}${m.recebedor? ` <span class="badge purple" style="margin-left:4px">${escapeHtml(m.recebedor)}</span>`:''}</div>
+                <div class="fi-sub">${escapeHtml(m.competencia)} · ${m.status==='pago'?'Pago':(daysUntil(m.vencimento)<0?'Atrasado':'Em aberto')}</div>
+              </div>
+              <div class="fi-value" style="color:${m.status==='pago'?'var(--green)':'var(--text)'}">${fmtMoney(m.valor)}</div>
+              <div class="row-actions">
+                ${m.status!=='pago'? `<button class="icon-btn" data-mens-pago="${m.id}">✔</button>`: `<button class="icon-btn" data-mens-reabrir="${m.id}">↺</button>`}
+                <button class="icon-btn btn-danger" data-del-mens="${m.id}">🗑</button>
+              </div>
+            </div>`;
+          }).join("")}
+        </div>
+      </div>`;
+    }).join("")}
+  </div></div>`;
+}
+function renderMensCalendario(rows){
+  const year = calMonth.getFullYear(), month = calMonth.getMonth();
+  const hojeStr = new Date().toISOString().slice(0,10);
+  const first = new Date(year, month, 1);
+  const startOffset = first.getDay();
+  const daysInMonth = new Date(year, month+1, 0).getDate();
+  const porDia = {};
+  rows.forEach(m=>{
+    const d = new Date(m.vencimento+"T00:00:00");
+    if(d.getFullYear()===year && d.getMonth()===month) (porDia[d.getDate()] = porDia[d.getDate()]||[]).push(m);
+  });
+  const cells = [];
+  for(let i=0;i<startOffset;i++) cells.push(`<div class="cal-day empty"></div>`);
+  for(let day=1; day<=daysInMonth; day++){
+    const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+    const items = porDia[day]||[];
+    const total = items.reduce((s,m)=>s+Number(m.valor||0),0);
+    cells.push(`<div class="cal-day ${dateStr===hojeStr?'today':''}">
+      <div class="dnum">${day}</div>
+      ${items.slice(0,3).map(m=>`<div class="cev ${m.status==='pago'?'pago':(daysUntil(m.vencimento)<0?'atrasado':'pendente')}" title="${escapeHtml(empresaNome(m.empresa_id))}">${escapeHtml(empresaNome(m.empresa_id))}</div>`).join("")}
+      ${items.length>3? `<div class="ctotal">+${items.length-3} mais</div>`:''}
+      ${total>0? `<div class="ctotal">${fmtMoney(total)}</div>`:''}
+    </div>`);
+  }
+  const monthLabel = calMonth.toLocaleDateString('pt-BR',{month:'long', year:'numeric'});
+  return `<div class="section">
+    <div class="cal-nav">
+      <button class="icon-btn" id="calPrev">← </button>
+      <div class="cal-title">${monthLabel}</div>
+      <button class="icon-btn" id="calNext">→</button>
+      <button class="btn-sm" id="calHoje" style="margin-left:auto">Hoje</button>
+    </div>
+    <div class="calendar">
+      ${["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"].map(d=>`<div class="cal-head">${d}</div>`).join("")}
+      ${cells.join("")}
+    </div>
+  </div>`;
 }
 function renderDespesas(){
   const rows = [...STATE.despesas].sort((a,b)=>a.vencimento.localeCompare(b.vencimento));
@@ -714,7 +892,7 @@ function tarefaForm(t){
   <div class="field"><label>Descrição</label><textarea id="fTarDesc" rows="2">${escapeHtml(t.descricao||"")}</textarea></div>
   <div class="field"><label>Empresa (opcional)</label><select id="fTarEmpresa">${empresaOptions(t.empresa_id)}</select></div>
   <div class="field"><label>Responsável</label><select id="fTarResp">${profileOptions(t.responsavel_id)}</select></div>
-  <div class="field"><label>Prioritade</label><select id="fTarPrio"><option value="baixa" ${t.prioridade==='baixa'?'selected':''}>Baixa</option><option value="media" ${!t.prioridade||t.prioridade==='media'?'selected':''}>Média</option><option value="alta" ${t.prioridade==='alta'?'selected':''}>Alta</option></select></div>
+  <div class="field"><label>Prioridade</label><select id="fTarPrio"><option value="baixa" ${t.prioridade==='baixa'?'selected':''}>Baixa</option><option value="media" ${!t.prioridade||t.prioridade==='media'?'selected':''}>Média</option><option value="alta" ${t.prioridade==='alta'?'selected':''}>Alta</option></select></div>
   <div class="field"><label>Prazo</label><input type="date" id="fTarPrazo" value="${t.prazo||""}"></div>
   <div class="field"><label>Status</label><select id="fTarStatus"><option value="a_fazer" ${!t.status||t.status==='a_fazer'?'selected':''}>A Fazer</option><option value="em_andamento" ${t.status==='em_andamento'?'selected':''}>Em Andamento</option><option value="concluida" ${t.status==='concluida'?'selected':''}>Concluída</option></select></div>
   <div class="modal-actions"><button id="cancelModal">Cancelar</button><button class="btn-primary" id="saveTarefa" data-id="${t.id||''}">Salvar</button></div>`;
@@ -768,6 +946,7 @@ function bindViewActions(){
 
   if(currentView==="empresas"){
     document.getElementById("btnNovaEmpresa").onclick = ()=> openModal(empresaForm());
+    document.getElementById("btnExportEmpresas").onclick = ()=> exportCSV("empresas.csv", ["Nome","CNPJ","Regime","Responsável","Status"], STATE.empresas.map(e=>[e.nome,e.cnpj,e.regime,e.responsavel,e.ativo?"Ativa":"Inativa"]));
     document.querySelectorAll("[data-edit-empresa]").forEach(b=>b.onclick = ()=>{
       const e = STATE.empresas.find(e=>e.id===b.dataset.editEmpresa);
       openModal(empresaForm(e));
@@ -821,11 +1000,35 @@ function bindViewActions(){
       if(error){ toast(error.message, true); return; }
       await loadAll(); render();
     });
+    const expEntregas = document.getElementById("btnExportEntregas");
+    if(expEntregas) expEntregas.onclick = ()=>{
+      const rows = [...STATE.entregas].sort((a,b)=>a.vencimento.localeCompare(b.vencimento));
+      exportCSV("obrigacoes.csv", ["Vencimento","Empresa","Tipo","Detalhe","Competência","Status"], rows.map(en=>{
+        const ob = STATE.obrigacoes.find(o=>o.id===en.obrigacao_id);
+        return [fmtDate(en.vencimento), ob?empresaNome(ob.empresa_id):"", ob?tipoInfo(ob.tipo).label:"", ob?ob.nome:"", en.competencia, en.status];
+      }));
+    };
+    const printObrig = document.getElementById("btnPrintObrigacoes");
+    if(printObrig) printObrig.onclick = printPage;
   }
   if(currentView==="financeiro"){
     document.getElementById("btnNovoFinanceiro").onclick = ()=> openModal(finTab==='mensalidades'? mensalidadeForm() : despesaForm());
     document.querySelectorAll("[data-fintab]").forEach(b=>b.onclick = ()=>{ finTab = b.dataset.fintab; render(); });
     document.querySelectorAll("[data-mensrecebedor]").forEach(b=>b.onclick = ()=>{ mensRecebedorFiltro = b.dataset.mensrecebedor; render(); });
+    document.querySelectorAll("[data-mensvisao]").forEach(b=>b.onclick = ()=>{ mensVisao = b.dataset.mensvisao; render(); });
+    const calPrev = document.getElementById("calPrev");
+    if(calPrev) calPrev.onclick = ()=>{ calMonth = new Date(calMonth.getFullYear(), calMonth.getMonth()-1, 1); render(); };
+    const calNext = document.getElementById("calNext");
+    if(calNext) calNext.onclick = ()=>{ calMonth = new Date(calMonth.getFullYear(), calMonth.getMonth()+1, 1); render(); };
+    const calHoje = document.getElementById("calHoje");
+    if(calHoje) calHoje.onclick = ()=>{ const n=new Date(); calMonth = new Date(n.getFullYear(), n.getMonth(), 1); render(); };
+    const btnExportMens = document.getElementById("btnExportMens");
+    if(btnExportMens) btnExportMens.onclick = ()=>{
+      const rows = STATE.mensalidades.filter(m=> mensRecebedorFiltro==='todos' || m.recebedor===mensRecebedorFiltro);
+      exportCSV("mensalidades.csv", ["Empresa","Competência","Valor","Vencimento","Recebedor","Status"], rows.map(m=>[empresaNome(m.empresa_id), m.competencia, m.valor, fmtDate(m.vencimento), m.recebedor||"", m.status]));
+    };
+    const btnPrintMens = document.getElementById("btnPrintMens");
+    if(btnPrintMens) btnPrintMens.onclick = printPage;
     document.querySelectorAll("[data-mens-pago]").forEach(b=>b.onclick = async ()=>{ await sb.from("mensalidades").update({status:"pago", pago_em:new Date().toISOString().slice(0,10)}).eq("id", b.dataset.mensPago); await loadAll(); render(); });
     document.querySelectorAll("[data-mens-reabrir]").forEach(b=>b.onclick = async ()=>{ await sb.from("mensalidades").update({status:"pendente", pago_em:null}).eq("id", b.dataset.mensReabrir); await loadAll(); render(); });
     document.querySelectorAll("[data-del-mens]").forEach(b=>b.onclick = async ()=>{ if(!await confirmDialog("Excluir?")) return; await sb.from("mensalidades").delete().eq("id", b.dataset.delMens); await loadAll(); render(); });
@@ -918,11 +1121,12 @@ async function obrigacoesSaveHandler(e){
   if(e.target.id === "saveObrigacao"){
     const payload = {
       empresa_id: document.getElementById("fObEmpresa").value,
+      tipo: document.getElementById("fObTipo").value,
       nome: document.getElementById("fObNome").value.trim(),
       periodicidade: document.getElementById("fObPeriodo").value,
       dia_vencimento: Number(document.getElementById("fObDia").value)||20,
     };
-    if(!payload.empresa_id || !payload.nome){ toast("Preencha empresa e nome", true); return; }
+    if(!payload.empresa_id){ toast("Selecione a empresa", true); return; }
     const { error } = await sb.from("obrigacoes").insert(payload);
     if(error){ toast(error.message, true); return; }
     closeModal(); toast("Modelo criado!"); await loadAll(); render();
